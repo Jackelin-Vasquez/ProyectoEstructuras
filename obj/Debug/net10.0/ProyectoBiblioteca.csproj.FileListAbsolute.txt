@@ -1,0 +1,15 @@
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\bin\Debug\net10.0\ProyectoBiblioteca.exe
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\bin\Debug\net10.0\ProyectoBiblioteca.deps.json
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\bin\Debug\net10.0\ProyectoBiblioteca.runtimeconfig.json
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\bin\Debug\net10.0\ProyectoBiblioteca.dll
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\bin\Debug\net10.0\ProyectoBiblioteca.pdb
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ProyectoBiblioteca.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ProyectoBiblioteca.AssemblyInfoInputs.cache
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ProyectoBiblioteca.AssemblyInfo.cs
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ProyectoBiblioteca.csproj.CoreCompileInputs.cache
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ProyectoBiblioteca.sourcelink.json
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ProyectoBiblioteca.dll
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\refint\ProyectoBiblioteca.dll
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ProyectoBiblioteca.pdb
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ProyectoBiblioteca.genruntimeconfig.cache
+C:\Users\Usuario\Desktop\ProyectoBiblioteca\obj\Debug\net10.0\ref\ProyectoBiblioteca.dll
