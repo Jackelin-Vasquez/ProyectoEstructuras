@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public class ArbolBPlus
@@ -13,17 +14,19 @@ public class ArbolBPlus
         this.raiz = new NodoBPlus(true);
     }
 
-    // Búsqueda en el árbol B+
-    public bool Buscar(int clave)
+    public Libro Buscar(int clave)
     {
         return BuscarRec(raiz, clave);
     }
 
-    private bool BuscarRec(NodoBPlus nodo, int clave)
+    private Libro BuscarRec(NodoBPlus nodo, int clave)
     {
         if (nodo.Hoja)
         {
-            return nodo.Claves.Contains(clave);
+            int index = nodo.Claves.IndexOf(clave);
+            if (index != -1)
+                return nodo.Valores[index];
+            return null;
         }
 
         int posicion = 0;
@@ -35,7 +38,6 @@ public class ArbolBPlus
         return BuscarRec(nodo.Hijos[posicion], clave);
     }
 
-    // Método para mostrar la estrucurra del arbol:p
     public void Mostrar()
     {
         Mostrarrecorrido(raiz, 0);
@@ -46,7 +48,12 @@ public class ArbolBPlus
         string espacios = new string(' ', nivel * 4);
         if (nodo.Hoja)
         {
-            Console.WriteLine($"{espacios}Hoja -> [{string.Join(", ", nodo.Claves)}]");
+            var infoLibros = new List<string>();
+            for (int i = 0; i < nodo.Claves.Count; i++)
+            {
+                infoLibros.Add($"[{nodo.Claves[i]}: {nodo.Valores[i].Titulo}]");
+            }
+            Console.WriteLine($"{espacios}Hoja -> {string.Join(", ", infoLibros)}");
         }
         else
         {
@@ -58,17 +65,16 @@ public class ArbolBPlus
         }
     }
 
-    // Método para insertar una clave :D
-    public void Insertar(int clave)
+    public void Insertar(Libro libro)
     {
-        if (Buscar(clave))
+        if (Buscar(libro.Codigo) != null)
         {
-            Console.WriteLine($"El código {clave} ya está registrado.");
+            Console.WriteLine($"El código {libro.Codigo} ya está registrado.");
             return;
         }
 
-        var resultado = InsertarRec(raiz, clave);
-        if (resultado.HasValue) // Si la raíz se dividió, se crea una nueva raíz :p
+        var resultado = InsertarRec(raiz, libro);
+        if (resultado.HasValue)
         {
             var claveGuia = resultado.Value.ClaveGuia;
             var nodoDerecho = resultado.Value.NodoDerecho;
@@ -81,27 +87,32 @@ public class ArbolBPlus
         }
     }
 
-    // Inserción recursiva  :D
-    private (int ClaveGuia, NodoBPlus NodoDerecho)? InsertarRec(NodoBPlus nodo, int clave)
+    private (int ClaveGuia, NodoBPlus NodoDerecho)? InsertarRec(NodoBPlus nodo, Libro libro)
     {
         if (nodo.Hoja)
         {
-            nodo.Claves.Add(clave);
-            nodo.Claves.Sort();
+            int i = 0;
+            while (i < nodo.Claves.Count && nodo.Claves[i] < libro.Codigo)
+            {
+                i++;
+            }
+
+            nodo.Claves.Insert(i, libro.Codigo);
+            nodo.Valores.Insert(i, libro);
 
             if (nodo.Claves.Count <= maxClaves)
-                return null; // Si cabe, todo bien
+                return null;
 
-            return DividirHoja(nodo); // Si se pasa, partimos la hoja
+            return DividirHoja(nodo);
         }
 
         int posicion = 0;
-        while (posicion < nodo.Claves.Count && clave >= nodo.Claves[posicion])
+        while (posicion < nodo.Claves.Count && libro.Codigo >= nodo.Claves[posicion])
         {
             posicion++;
         }
 
-        var resultado = InsertarRec(nodo.Hijos[posicion], clave);
+        var resultado = InsertarRec(nodo.Hijos[posicion], libro);
         if (!resultado.HasValue)
             return null;
 
@@ -114,26 +125,27 @@ public class ArbolBPlus
         if (nodo.Claves.Count <= maxClaves)
             return null;
 
-        return DividirInterno(nodo); // Si el nodo interno se pasa,se parte
+        return DividirInterno(nodo);
     }
 
-    // Parte una hoja a la mitad cuando se rebalsa
     private (int ClaveGuia, NodoBPlus NodoDerecho) DividirHoja(NodoBPlus hoja)
     {
         int punto = hoja.Claves.Count / 2;
         var nuevaHoja = new NodoBPlus(true);
 
         nuevaHoja.Claves.AddRange(hoja.Claves.GetRange(punto, hoja.Claves.Count - punto));
+        nuevaHoja.Valores.AddRange(hoja.Valores.GetRange(punto, hoja.Valores.Count - punto));
+
         hoja.Claves.RemoveRange(punto, hoja.Claves.Count - punto);
+        hoja.Valores.RemoveRange(punto, hoja.Valores.Count - punto);
 
         nuevaHoja.Siguiente = hoja.Siguiente;
         hoja.Siguiente = nuevaHoja;
 
-        int claveGuia = nuevaHoja.Claves[0]; // La primera de la derecha sube como guía
+        int claveGuia = nuevaHoja.Claves[0];
         return (claveGuia, nuevaHoja);
     }
 
-    // Parte un nodo interno cuando se rebalsa
     private (int ClaveGuia, NodoBPlus NodoDerecho) DividirInterno(NodoBPlus nodo)
     {
         int centro = nodo.Claves.Count / 2;

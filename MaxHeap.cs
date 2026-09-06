@@ -19,7 +19,6 @@ public class MaxHeap
         {
             int padre = (indice - 1) / 2;
 
-            // si es mayor que el padre sube :D
             if (heap[indice].CompareTo(heap[padre]) > 0)
             {
                 Libro temp = heap[indice];

@@ -2,20 +2,17 @@ using System.Collections.Generic;
 
 public class NodoBPlus
 {
-    // True si es hoja (guarda las claves), False si es nodo interno (guarda guías e hijos)
     public bool Hoja { get; set; }
-    
-    // Lista donde guardamos las codigos de libos
     public List<int> Claves { get; set; }
-    
-    public List<NodoBPlus> Hijos { get; set; }     // Lista de punteros a los hijos
-    
+    public List<Libro> Valores { get; set; } // Guarda los libros si es hoja
+    public List<NodoBPlus> Hijos { get; set; }
     public NodoBPlus Siguiente { get; set; }
 
-    public NodoBPlus(bool hoja = true)
+    public NodoBPlus(bool hoja)
     {
         Hoja = hoja;
         Claves = new List<int>();
+        Valores = new List<Libro>(); // Inicializar lista de valores
         Hijos = new List<NodoBPlus>();
         Siguiente = null;
     }

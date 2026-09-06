@@ -4,12 +4,10 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Instanciamos nuestras estructuras principales
-        ArbolBPlus arbolBPlus = new ArbolBPlus(); // Asegúrate de tener tu clase ArbolBPlus lista
+        ArbolBPlus arbolBPlus = new ArbolBPlus();
         MinHeap minHeap = new MinHeap();
         MaxHeap maxHeap = new MaxHeap();
 
-        // Precargamos algunos datos de ejemplo para que el menú no inicie vacío
         CargarDatosIniciales(arbolBPlus, minHeap, maxHeap);
 
         int opcion = 0;
@@ -21,7 +19,7 @@ class Program
             Console.WriteLine("==========================================");
             Console.WriteLine("1. Registrar nuevo libro");
             Console.WriteLine("2. Buscar libro por código (Árbol B+)");
-            Console.WriteLine("3. Ver catálogo ordenado por título / Mostrar Árbol B+");
+            Console.WriteLine("3. Mostrar estructura del Árbol B+");
             Console.WriteLine("4. Mostrar libros menos prestados (Min Heap)");
             Console.WriteLine("5. Mostrar libros más prestados (Max Heap)");
             Console.WriteLine("6. Salir");
@@ -40,8 +38,7 @@ class Program
                         break;
                     case 3:
                         Console.WriteLine("\n--- CATÁLOGO / ÁRBOL B+ ---");
-                        // Aquí invocas el método de recorrido de tu ArbolBPlus (ej. arbolBPlus.Imprimir() o similar)
-                        Console.WriteLine("Función para mostrar recorrido del Árbol B+.");
+                        arbolBPlus.Mostrar();
                         break;
                     case 4:
                         Console.WriteLine("\n--- LIBROS MENOS PRESTADOS (MIN HEAP) ---");
@@ -79,10 +76,10 @@ class Program
         Libro l2 = new Libro(5, "Estructuras de Datos", "Autor B", "Tecnología", 3, 45);
         Libro l3 = new Libro(20, "Algoritmos", "Autor C", "Tecnología", 2, 3);
 
-        // Insertar en Árbol B+ (según cómo reciba los parámetros tu implementación)
-        // arbol.Insertar(l1.Codigo, l1);
+        arbol.Insertar(l1);
+        arbol.Insertar(l2);
+        arbol.Insertar(l3);
 
-        // Insertar en Heaps
         minH.Insertar(l1);
         minH.Insertar(l2);
         minH.Insertar(l3);
@@ -117,10 +114,7 @@ class Program
 
             Libro nuevoLibro = new Libro(codigo, titulo, autor, categoria, copias, prestamos);
 
-            // 1. Insertar en el Árbol B+
-            // arbol.Insertar(nuevoLibro.Codigo, nuevoLibro);
-
-            // 2. Insertar en los Heaps
+            arbol.Insertar(nuevoLibro);
             minH.Insertar(nuevoLibro);
             maxH.Insertar(nuevoLibro);
 
@@ -137,13 +131,23 @@ class Program
         Console.WriteLine("\n--- BUSCAR LIBRO POR CÓDIGO ---");
         Console.Write("Ingrese el código del libro a buscar: ");
         int codigo;
-if (int.TryParse(Console.ReadLine(), out codigo))
+        if (int.TryParse(Console.ReadLine(), out codigo))
         {
-            // Aquí llamas a la búsqueda de tu Árbol B+
-            // Libro encontrado = arbol.Buscar(codigo);
-            // if (encontrado != null) Console.WriteLine(encontrado);
-            // else Console.WriteLine("Libro no encontrado.");
-            Console.WriteLine("Búsqueda en Árbol B+ pendiente de conectar con tu clase.");
+            Libro libroEncontrado = arbol.Buscar(codigo);
+            if (libroEncontrado != null)
+            {
+                Console.WriteLine($"\n¡Libro encontrado!");
+                Console.WriteLine($"Código: {libroEncontrado.Codigo}");
+                Console.WriteLine($"Título: {libroEncontrado.Titulo}");
+                Console.WriteLine($"Autor: {libroEncontrado.Autor}");
+                Console.WriteLine($"Categoría: {libroEncontrado.Categoria}");
+                Console.WriteLine($"Copias disponibles: {libroEncontrado.CopiasDisponibles}");
+                Console.WriteLine($"Veces prestado: {libroEncontrado.VecesPrestado}");
+            }
+            else
+            {
+                Console.WriteLine($"\nEl libro con código {codigo} no existe en el sistema.");
+            }
         }
         else
         {
