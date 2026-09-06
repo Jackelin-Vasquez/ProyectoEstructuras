@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 class Program
 {
@@ -20,9 +22,12 @@ class Program
             Console.WriteLine("1. Registrar nuevo libro");
             Console.WriteLine("2. Buscar libro por código (Árbol B+)");
             Console.WriteLine("3. Mostrar estructura del Árbol B+");
-            Console.WriteLine("4. Mostrar libros menos prestados (Min Heap)");
-            Console.WriteLine("5. Mostrar libros más prestados (Max Heap)");
-            Console.WriteLine("6. Salir");
+            Console.WriteLine("4. Listar catálogo ordenado por título");
+            Console.WriteLine("5. Registrar préstamo de libro");
+            Console.WriteLine("6. Registrar devolución de libro");
+            Console.WriteLine("7. Mostrar libros menos prestados (Min Heap)");
+            Console.WriteLine("8. Mostrar libros más prestados (Max Heap)");
+            Console.WriteLine("9. Salir");
             Console.Write("\nSeleccione una opción: ");
 
             string input = Console.ReadLine();
@@ -41,15 +46,24 @@ class Program
                         arbolBPlus.Mostrar();
                         break;
                     case 4:
+                        ListarPorTitulo(arbolBPlus);
+                        break;
+                    case 5:
+                        RegistrarPrestamo(arbolBPlus, minHeap, maxHeap);
+                        break;
+                    case 6:
+                        RegistrarDevolucion(arbolBPlus, minHeap, maxHeap);
+                        break;
+                    case 7:
                         Console.WriteLine("\n--- LIBROS MENOS PRESTADOS (MIN HEAP) ---");
                         minHeap.Mostrar();
                         break;
-                    case 5:
+                    case 8:
                         Console.WriteLine("\n--- LIBROS MÁS PRESTADOS (MAX HEAP) ---");
                         maxHeap.Mostrar();
                         break;
-                    case 6:
-                        Console.WriteLine("\nSaliendo del sistema... ¡Mucho éxito con tu defensa!");
+                    case 9:
+                        Console.WriteLine("\nSaliendo del sistema...");
                         break;
                     default:
                         Console.WriteLine("\nOpción inválida. Intente de nuevo.");
@@ -61,13 +75,135 @@ class Program
                 Console.WriteLine("\nPor favor, ingrese un número válido.");
             }
 
-            if (opcion != 6)
+            if (opcion != 9)
             {
                 Console.WriteLine("\nPresione cualquier tecla para continuar...");
                 Console.ReadKey();
             }
 
-        } while (opcion != 6);
+        } while (opcion != 9);
+    }
+
+    static void ReconstruirHeaps(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
+    {
+        minH.Limpiar();
+        maxH.Limpiar();
+
+        var libros = arbol.ObtenerTodosLosLibros();
+        foreach (var libro in libros)
+        {
+            minH.Insertar(libro);
+            maxH.Insertar(libro);
+        }
+    }
+
+    static void ListarPorTitulo(ArbolBPlus arbol)
+    {
+        Console.WriteLine("\n--- CATÁLOGO ORDENADO POR TÍTULO ---");
+        var libros = arbol.ObtenerTodosLosLibros();
+        var librosOrdenados = libros.OrderBy(l => l.Titulo).ToList();
+
+        if (librosOrdenados.Count == 0)
+        {
+            Console.WriteLine("No hay libros registrados en el sistema.");
+            return;
+        }
+
+        foreach (var libro in librosOrdenados)
+        {
+            Console.WriteLine(libro.ToString());
+        }
+    }
+
+static void RegistrarPrestamo(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
+    {
+        Console.WriteLine("\n--- REGISTRAR PRÉSTAMO ---");
+        
+        //Para que el usuario pued ver los 
+        var libros = arbol.ObtenerTodosLosLibros();
+        if (libros.Count == 0)
+        {
+            Console.WriteLine("No hay libros registrados en el sistema.");
+            return;
+        }
+
+        Console.WriteLine("Catálogo actual:");
+        foreach (var l in libros)
+        {
+            Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} (Disponibles: {l.CopiasDisponibles})");
+        }
+        Console.WriteLine();
+
+        Console.Write("Ingrese el código del libro a prestar: ");
+        if (int.TryParse(Console.ReadLine(), out int codigo))
+        {
+            Libro libro = arbol.Buscar(codigo);
+            if (libro != null)
+            {
+                if (libro.CopiasDisponibles > 0)
+                {
+                    libro.CopiasDisponibles--;
+                    libro.VecesPrestado++;
+                    ReconstruirHeaps(arbol, minH, maxH);
+                    Console.WriteLine($"\n¡Préstamo registrado con éxito para '{libro.Titulo}'!");
+                    Console.WriteLine($"Copias disponibles restantes: {libro.CopiasDisponibles}");
+                    Console.WriteLine($"Veces prestado total: {libro.VecesPrestado}");
+                }
+                else
+                {
+                    Console.WriteLine("\nLo sentimos, no hay copias disponibles de este libro para prestar.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("\nEl libro con ese código no existe en el sistema.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Código inválido.");
+        }
+    }
+
+    static void RegistrarDevolucion(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
+    {
+        Console.WriteLine("\n--- REGISTRAR DEVOLUCIÓN ---");
+        
+        // Mostramos los libros para facilitar la selección
+        var libros = arbol.ObtenerTodosLosLibros();
+        if (libros.Count == 0)
+        {
+            Console.WriteLine("No hay libros registrados en el sistema.");
+            return;
+        }
+
+        Console.WriteLine("Catálogo actual:");
+        foreach (var l in libros)
+        {
+            Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} (Disponibles: {l.CopiasDisponibles})");
+        }
+        Console.WriteLine();
+
+        Console.Write("Ingrese el código del libro a devolver: ");
+        if (int.TryParse(Console.ReadLine(), out int codigo))
+        {
+            Libro libro = arbol.Buscar(codigo);
+            if (libro != null)
+            {
+                libro.CopiasDisponibles++;
+                ReconstruirHeaps(arbol, minH, maxH);
+                Console.WriteLine($"\n¡Devolución registrada con éxito para '{libro.Titulo}'!");
+                Console.WriteLine($"Copias disponibles actuales: {libro.CopiasDisponibles}");
+            }
+            else
+            {
+                Console.WriteLine("\nEl libro con ese código no existe en el sistema.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Código inválido.");
+        }
     }
 
     static void CargarDatosIniciales(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
@@ -97,6 +233,13 @@ class Program
             Console.Write("Ingrese Código (número): ");
             int codigo = int.Parse(Console.ReadLine());
 
+            // Validar que el código no exista previamente en el árbol
+            if (arbol.Buscar(codigo) != null)
+            {
+                Console.WriteLine($"\nEl código {codigo} ya está registrado en el sistema. Operación cancelada.");
+                return;
+            }
+
             Console.Write("Ingrese Título: ");
             string titulo = Console.ReadLine();
 
@@ -118,16 +261,17 @@ class Program
                 Console.Write("Ingrese Copias Disponibles: ");
                 int copias = int.Parse(Console.ReadLine());
 
-                Console.Write("Ingrese Veces Prestado: ");
-                int prestamos = int.Parse(Console.ReadLine());
+                // Se asigna 0 por defecto al registrar un libro nuevo, porque al 
+                //ser neuvo no ha tenido ningu prestamo o devolución
+                int vecesPrestadoInicial = 0;
 
-                Libro nuevoLibro = new Libro(codigo, titulo, autor, categoriaSeleccionada, copias, prestamos);
+                Libro nuevoLibro = new Libro(codigo, titulo, autor, categoriaSeleccionada, copias, vecesPrestadoInicial);
 
                 arbol.Insertar(nuevoLibro);
                 minH.Insertar(nuevoLibro);
                 maxH.Insertar(nuevoLibro);
 
-                Console.WriteLine("\n¡Libro registrado con éxito!");
+                Console.WriteLine("\n¡Libro registrado con éxito con 0 préstamos iniciales!");
             }
             else
             {
