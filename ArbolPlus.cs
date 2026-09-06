@@ -38,6 +38,28 @@ public class ArbolBPlus
         return BuscarRec(nodo.Hijos[posicion], clave);
     }
 
+    public List<Libro> ObtenerTodosLosLibros()
+    {
+        List<Libro> listaLibros = new List<Libro>();
+        NodoBPlus actual = raiz;
+
+        while (!actual.Hoja)
+        {
+            actual = actual.Hijos[0];
+        }
+
+        while (actual != null)
+        {
+            for (int i = 0; i < actual.Valores.Count; i++)
+            {
+                listaLibros.Add(actual.Valores[i]);
+            }
+            actual = actual.Siguiente;
+        }
+
+        return listaLibros;
+    }
+
     public void Mostrar()
     {
         Mostrarrecorrido(raiz, 0);

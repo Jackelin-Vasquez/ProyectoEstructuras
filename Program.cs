@@ -72,9 +72,9 @@ class Program
 
     static void CargarDatosIniciales(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
-        Libro l1 = new Libro(10, "C# Avanzado", "Autor A", "Tecnología", 5, 12);
-        Libro l2 = new Libro(5, "Estructuras de Datos", "Autor B", "Tecnología", 3, 45);
-        Libro l3 = new Libro(20, "Algoritmos", "Autor C", "Tecnología", 2, 3);
+        Libro l1 = new Libro(10, "C# Avanzado", "Autor A", Libro.CategoriaLibro.Tecnologia, 5, 12);
+        Libro l2 = new Libro(5, "Estructuras de Datos", "Autor B", Libro.CategoriaLibro.Tecnologia, 3, 45);
+        Libro l3 = new Libro(20, "Algoritmos", "Autor C", Libro.CategoriaLibro.Ciencia, 2, 3);
 
         arbol.Insertar(l1);
         arbol.Insertar(l2);
@@ -103,22 +103,36 @@ class Program
             Console.Write("Ingrese Autor: ");
             string autor = Console.ReadLine();
 
-            Console.Write("Ingrese Categoría: ");
-            string categoria = Console.ReadLine();
+            Console.WriteLine("\nSeleccione la Categoría:");
+            Array valoresCategorias = Enum.GetValues(typeof(Libro.CategoriaLibro));
+            for (int i = 0; i < valoresCategorias.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {valoresCategorias.GetValue(i)}");
+            }
+            Console.Write("Opción: ");
 
-            Console.Write("Ingrese Copias Disponibles: ");
-            int copias = int.Parse(Console.ReadLine());
+            if (int.TryParse(Console.ReadLine(), out int opcionCat) && opcionCat >= 1 && opcionCat <= valoresCategorias.Length)
+            {
+                Libro.CategoriaLibro categoriaSeleccionada = (Libro.CategoriaLibro)valoresCategorias.GetValue(opcionCat - 1);
 
-            Console.Write("Ingrese Veces Prestado: ");
-            int prestamos = int.Parse(Console.ReadLine());
+                Console.Write("Ingrese Copias Disponibles: ");
+                int copias = int.Parse(Console.ReadLine());
 
-            Libro nuevoLibro = new Libro(codigo, titulo, autor, categoria, copias, prestamos);
+                Console.Write("Ingrese Veces Prestado: ");
+                int prestamos = int.Parse(Console.ReadLine());
 
-            arbol.Insertar(nuevoLibro);
-            minH.Insertar(nuevoLibro);
-            maxH.Insertar(nuevoLibro);
+                Libro nuevoLibro = new Libro(codigo, titulo, autor, categoriaSeleccionada, copias, prestamos);
 
-            Console.WriteLine("\n¡Libro registrado con éxito en el Árbol B+ y en los Montículos!");
+                arbol.Insertar(nuevoLibro);
+                minH.Insertar(nuevoLibro);
+                maxH.Insertar(nuevoLibro);
+
+                Console.WriteLine("\n¡Libro registrado con éxito!");
+            }
+            else
+            {
+                Console.WriteLine("\nCategoría inválida. Operación cancelada.");
+            }
         }
         catch (Exception ex)
         {
