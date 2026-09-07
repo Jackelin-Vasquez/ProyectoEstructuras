@@ -16,6 +16,7 @@ class Program
         MinHeap minHeap = new MinHeap();
         MaxHeap maxHeap = new MaxHeap();
 
+        // Aqui se carga lo que ya se tiene guardado antes de abrir el menú
         CargarDesdeArchivo(arbolBPlus, minHeap, maxHeap);
 
         int opcion = 0;
@@ -37,7 +38,7 @@ class Program
             Console.Write("\u001b[0m");
             Console.WriteLine("  ────────────────────────────────────────────────────────");
             
-            // Opciones del menú con viñetas en morado real
+            // Opciones del menú con viñetas en morado 
             Console.Write("\u001b[38;2;157;78;221m  [1] \u001b[0m"); Console.WriteLine("Registrar nuevo libro");
             Console.Write("\u001b[38;2;157;78;221m  [2] \u001b[0m"); Console.WriteLine("Buscar libro por código");
             Console.Write("\u001b[38;2;157;78;221m  [3] \u001b[0m"); Console.WriteLine("Mostrar estructura del Árbol B+");
@@ -53,6 +54,8 @@ class Program
             Console.Write("\u001b[38;2;157;78;221mSeleccione una opción: \u001b[0m");
 
             string input = Console.ReadLine();
+            
+            // se usa TryParse para que no se nos caiga el programa si meten letras por error D:
             if (int.TryParse(input, out opcion))
             {
                 Console.Clear();
@@ -130,13 +133,14 @@ class Program
         } while (opcion != 10);
     }
 
-    // Método mejorado para dibujar un recuadro dinámico alrededor del título de la sección
+    // recuadro dinamico
     static void MostrarTituloSeccion(string titulo)
     {
+        // Calculamos el tamaño dependiendo de qué tan largo sea el texto para que no se deforme
         int ancho = titulo.Length + 4; // Espacio interno a los lados
         string lineaHorizontal = new string('═', ancho);
 
-        Console.Write("\u001b[38;2;114;9;183m"); // Morado real profundo
+        Console.Write("\u001b[38;2;114;9;183m"); // Morado profundo
         Console.WriteLine($"╔{lineaHorizontal}╗");
         Console.WriteLine($"║  {titulo}  ║");
         Console.WriteLine($"╚{lineaHorizontal}╝");
@@ -151,12 +155,12 @@ class Program
             var libros = arbol.ObtenerTodosLosLibros();
             using (StreamWriter sw = new StreamWriter(archivoDatos))
             {
-                // Se escribe la cabecera para que Excel muestre los nombres de las columnas
+                // Se escribe la cabecera para que sean los nombres de las columnas de los aatos
                 sw.WriteLine("Codigo;Titulo;Autor;Categoria;TotalCopias;CopiasDisponibles;VecesPrestado");
 
                 foreach (var l in libros)
                 {
-                    // Se utiliza punto y coma (;) para separar campos de forma nativa en Excel en español
+                    // Se utiliza punto y coma (;) para separar campos
                     sw.WriteLine($"{l.Codigo};{l.Titulo};{l.Autor};{(int)l.Categoria};{l.TotalCopias};{l.CopiasDisponibles};{l.VecesPrestado}");
                 }
             }
@@ -224,6 +228,7 @@ class Program
 
     static void ReconstruirHeaps(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
+        // se limpia y se vuelve a meter todo para que los heaps no pierdan el orden con los préstamos
         minH.Limpiar();
         maxH.Limpiar();
 
@@ -257,7 +262,7 @@ class Program
         var libros = arbol.ObtenerTodosLosLibros();
         if (libros.Count == 0)
         {
-            Console.WriteLine("No hay libros registrados en el sistema.");
+            Console.WriteLine("No hay libros registrados en el sistema -.-");
             return;
         }
 
@@ -342,7 +347,7 @@ class Program
             }
             else
             {
-                Console.WriteLine("\nEl libro con ese código no existe en el sistema -°-");
+                Console.WriteLine("\nEl libro con ese código no existe en el sistema °-°");
             }
         }
         else
@@ -358,6 +363,7 @@ class Program
             Console.Write("Ingrese Código (número): ");
             int codigo = int.Parse(Console.ReadLine());
 
+            // Validamos que no metamos un código repetido
             if (arbol.Buscar(codigo) != null)
             {
                 Console.WriteLine($"\nEl código {codigo} ya está registrado en el sistema °^°.");
@@ -415,7 +421,7 @@ class Program
             if (libroEncontrado != null)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\n✔ ¡Libro encontrado!");
+                Console.WriteLine("\n ¡Libro encontrado! :D");
                 Console.ResetColor();
                 Console.WriteLine($"  • Código: {libroEncontrado.Codigo}");
                 Console.WriteLine($"  • Título: {libroEncontrado.Titulo}");
