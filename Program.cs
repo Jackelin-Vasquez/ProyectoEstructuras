@@ -9,7 +9,7 @@ class Program
 
     static void Main(string[] args)
     {
-        // Asegurar soporte de caracteres especiales/emojis en la consola de Windows
+        // Asegurar soporte de caracteres especiales/emojis y secuencias ANSI en la consola de Windows
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
         ArbolBPlus arbolBPlus = new ArbolBPlus();
@@ -23,35 +23,34 @@ class Program
         {
             Console.Clear();
             
-            // Encabezado llamativo con colores
-            Console.ForegroundColor = ConsoleColor.Cyan;
+            // Encabezado con morado real (Violeta profundo)
+            Console.Write("\u001b[38;2;114;9;183m");
             Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
             Console.WriteLine("║                    SISTEMA DE BIBLIOTECA                 ║");
-            Console.WriteLine("║                      Gestión de libros                   ║");
+            Console.WriteLine("║                       Gestión de libros                  ║");
             Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
-            Console.ResetColor();
+            Console.Write("\u001b[0m");
 
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("\u001b[38;2;114;9;183m");
             Console.WriteLine("  MENÚ PRINCIPAL");
-            Console.ResetColor();
+            Console.Write("\u001b[0m");
             Console.WriteLine("  ────────────────────────────────────────────────────────");
             
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [1] "); Console.ResetColor(); Console.WriteLine("Registrar nuevo libro");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [2] "); Console.ResetColor(); Console.WriteLine("Buscar libro por código");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [3] "); Console.ResetColor(); Console.WriteLine("Mostrar estructura del Árbol B+");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [4] "); Console.ResetColor(); Console.WriteLine("Listar catálogo ordenado por título");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [5] "); Console.ResetColor(); Console.WriteLine("Registrar préstamo de libro");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [6] "); Console.ResetColor(); Console.WriteLine("Registrar devolución de libro");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [7] "); Console.ResetColor(); Console.WriteLine("Mostrar libros menos prestados");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [8] "); Console.ResetColor(); Console.WriteLine("Mostrar libros más prestados");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [9] "); Console.ResetColor(); Console.WriteLine("Eliminar libro del sistema");
-            Console.ForegroundColor = ConsoleColor.Red;   Console.Write("  [10] "); Console.ResetColor(); Console.WriteLine("Salir del sistema");
+            // Opciones del menú con viñetas en morado real
+            Console.Write("\u001b[38;2;157;78;221m  [1] \u001b[0m"); Console.WriteLine("Registrar nuevo libro");
+            Console.Write("\u001b[38;2;157;78;221m  [2] \u001b[0m"); Console.WriteLine("Buscar libro por código");
+            Console.Write("\u001b[38;2;157;78;221m  [3] \u001b[0m"); Console.WriteLine("Mostrar estructura del Árbol B+");
+            Console.Write("\u001b[38;2;157;78;221m  [4] \u001b[0m"); Console.WriteLine("Listar catálogo ordenado por título");
+            Console.Write("\u001b[38;2;157;78;221m  [5] \u001b[0m"); Console.WriteLine("Registrar préstamo de libro");
+            Console.Write("\u001b[38;2;157;78;221m  [6] \u001b[0m"); Console.WriteLine("Registrar devolución de libro");
+            Console.Write("\u001b[38;2;157;78;221m  [7] \u001b[0m"); Console.WriteLine("Mostrar libros menos prestados");
+            Console.Write("\u001b[38;2;157;78;221m  [8] \u001b[0m"); Console.WriteLine("Mostrar libros más prestados");
+            Console.Write("\u001b[38;2;157;78;221m  [9] \u001b[0m"); Console.WriteLine("Eliminar libro del sistema");
+            Console.Write("\u001b[38;2;114;9;183m  [10] \u001b[0m"); Console.WriteLine("Salir del sistema");
             
             Console.WriteLine("  ────────────────────────────────────────────────────────");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("Seleccione una opción: ");
-            Console.ResetColor();
+            Console.Write("\u001b[38;2;157;78;221mSeleccione una opción: \u001b[0m");
 
             string input = Console.ReadLine();
             if (int.TryParse(input, out opcion))
@@ -100,9 +99,9 @@ class Program
                         GuardarEnArchivo(arbolBPlus);
                         break;
                     case 10:
-                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.Write("\u001b[38;2;114;9;183m");
                         Console.WriteLine("\n Guardando datos y cerrando sistema... ¡Hasta luego!");
-                        Console.ResetColor();
+                        Console.Write("\u001b[0m");
                         GuardarEnArchivo(arbolBPlus);
                         break;
                     default:
@@ -131,11 +130,17 @@ class Program
         } while (opcion != 10);
     }
 
+    // Método mejorado para dibujar un recuadro dinámico alrededor del título de la sección
     static void MostrarTituloSeccion(string titulo)
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine($"=== {titulo} ===");
-        Console.ResetColor();
+        int ancho = titulo.Length + 4; // Espacio interno a los lados
+        string lineaHorizontal = new string('═', ancho);
+
+        Console.Write("\u001b[38;2;114;9;183m"); // Morado real profundo
+        Console.WriteLine($"╔{lineaHorizontal}╗");
+        Console.WriteLine($"║  {titulo}  ║");
+        Console.WriteLine($"╚{lineaHorizontal}╝");
+        Console.Write("\u001b[0m");
         Console.WriteLine();
     }
 
@@ -146,11 +151,12 @@ class Program
             var libros = arbol.ObtenerTodosLosLibros();
             using (StreamWriter sw = new StreamWriter(archivoDatos))
             {
-                // Escribimos la fila de encabezados/campos al inicio del CSV
+                // Se escribe la cabecera para que Excel muestre los nombres de las columnas
                 sw.WriteLine("Codigo;Titulo;Autor;Categoria;TotalCopias;CopiasDisponibles;VecesPrestado");
+
                 foreach (var l in libros)
                 {
-                    // se guradan 7 campos: Código, Título, Autor, Categoría, TotalCopias, CopiasDisponibles, VecesPrestado
+                    // Se utiliza punto y coma (;) para separar campos de forma nativa en Excel en español
                     sw.WriteLine($"{l.Codigo};{l.Titulo};{l.Autor};{(int)l.Categoria};{l.TotalCopias};{l.CopiasDisponibles};{l.VecesPrestado}");
                 }
             }
@@ -163,7 +169,7 @@ class Program
 
     static void CargarDesdeArchivo(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
-        // Si el archivo no existe, inicia vacio
+        // Si el archivo no existe, inicia vacío
         if (!File.Exists(archivoDatos))
         {
             return;
@@ -177,14 +183,13 @@ class Program
                 if (string.IsNullOrWhiteSpace(linea)) continue;
                 string[] partes = linea.Split(';');
                 
-                // se inteta el primer campo como entero. Si falla (lee la palabra del campo), se ignora.
+                // Se evalúa si el primer campo se puede parsear como número (evita error al leer la cabecera "Codigo")
                 if (partes.Length >= 6 && int.TryParse(partes[0], out int codigo))
                 {
                     string titulo = partes[1];
                     string autor = partes[2];
                     Libro.CategoriaLibro categoria = (Libro.CategoriaLibro)int.Parse(partes[3]);
                     
-                    // Se esperan 7 partes 
                     if (partes.Length == 7)
                     {
                         int totalCopias = int.Parse(partes[4]);
@@ -192,6 +197,7 @@ class Program
                         int vecesPrestado = int.Parse(partes[6]);
 
                         Libro libro = new Libro(codigo, titulo, autor, categoria, totalCopias, copiasDisponibles, vecesPrestado);
+
                         arbol.Insertar(libro);
                         minH.Insertar(libro);
                         maxH.Insertar(libro);
@@ -202,6 +208,7 @@ class Program
                         int vecesPrestado = int.Parse(partes[5]);
 
                         Libro libro = new Libro(codigo, titulo, autor, categoria, copias, vecesPrestado);
+
                         arbol.Insertar(libro);
                         minH.Insertar(libro);
                         maxH.Insertar(libro);
@@ -214,6 +221,7 @@ class Program
             Console.WriteLine($"Error al leer el archivo: {ex.Message}");
         }
     }
+
     static void ReconstruirHeaps(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
         minH.Limpiar();
@@ -295,54 +303,53 @@ class Program
     }
 
     static void RegistrarDevolucion(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
-{
-    var libros = arbol.ObtenerTodosLosLibros();
-    if (libros.Count == 0)
     {
-        Console.WriteLine("No hay libros registrados en el sistema °^°.");
-        return;
-    }
-
-    Console.WriteLine("Catálogo actual:");
-    foreach (var l in libros)
-    {
-        Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} (Disponibles: {l.CopiasDisponibles}/{l.TotalCopias})");
-    }
-    Console.WriteLine();
-
-    Console.Write("Ingrese el código del libro a devolver: ");
-    if (int.TryParse(Console.ReadLine(), out int codigo))
-    {
-        Libro libro = arbol.Buscar(codigo);
-        if (libro != null)
+        var libros = arbol.ObtenerTodosLosLibros();
+        if (libros.Count == 0)
         {
-            // Validación: No se puede devolver más de lo que la biblioteca posee originalmente
-            if (libro.CopiasDisponibles < libro.TotalCopias)
+            Console.WriteLine("No hay libros registrados en el sistema °^°.");
+            return;
+        }
+
+        Console.WriteLine("Catálogo actual:");
+        foreach (var l in libros)
+        {
+            Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} (Disponibles: {l.CopiasDisponibles}/{l.TotalCopias})");
+        }
+        Console.WriteLine();
+
+        Console.Write("Ingrese el código del libro a devolver: ");
+        if (int.TryParse(Console.ReadLine(), out int codigo))
+        {
+            Libro libro = arbol.Buscar(codigo);
+            if (libro != null)
             {
-                libro.CopiasDisponibles++;
-                ReconstruirHeaps(arbol, minH, maxH);
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"\n¡Devolución registrada con éxito para '{libro.Titulo}'!");
-                Console.ResetColor();
-                Console.WriteLine($"Copias disponibles actuales: {libro.CopiasDisponibles}/{libro.TotalCopias}");
+                if (libro.CopiasDisponibles < libro.TotalCopias)
+                {
+                    libro.CopiasDisponibles++;
+                    ReconstruirHeaps(arbol, minH, maxH);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"\n¡Devolución registrada con éxito para '{libro.Titulo}'!");
+                    Console.ResetColor();
+                    Console.WriteLine($"Copias disponibles actuales: {libro.CopiasDisponibles}/{libro.TotalCopias}");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\n x Error: Ya se encuentran todas las copias en la biblioteca. No se puede recibir una devolución °^°.");
+                    Console.ResetColor();
+                }
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\n x Error: Ya se encuentran todas las copias en la biblioteca. No se puede recibir una devolución °^°.");
-                Console.ResetColor();
+                Console.WriteLine("\nEl libro con ese código no existe en el sistema -°-");
             }
         }
         else
         {
-            Console.WriteLine("\nEl libro con ese código no existe en el sistema -°-");
+            Console.WriteLine("Código inválido.");
         }
     }
-    else
-    {
-        Console.WriteLine("Código inválido.");
-    }
-}
 
     static void RegistrarLibro(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
@@ -430,7 +437,7 @@ class Program
         }
     }
 
-static void EliminarLibroMenu(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
+    static void EliminarLibroMenu(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
         var libros = arbol.ObtenerTodosLosLibros();
         if (libros.Count == 0)
@@ -454,6 +461,9 @@ static void EliminarLibroMenu(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
             {
                 arbol.Eliminar(codigo);
                 ReconstruirHeaps(arbol, minH, maxH);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\n¡Libro con código {codigo} eliminado con éxito!");
+                Console.ResetColor();
             }
             else
             {
