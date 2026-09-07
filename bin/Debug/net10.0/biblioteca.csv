@@ -1,4 +1,5 @@
-1,Los 3 cerditos,Anonimo,3,12,11,1
-8,ud,d,3,23,23,0
-10,C# Avanzado,Autor A,0,5,5,12
-33,ola,djd,5,3,3,0
+Codigo;Titulo;Autor;Categoria;TotalCopias;CopiasDisponibles;VecesPrestado
+1;Crimen y Castigo;Fiódor Dostoyevski;4;12;10;2
+5;Noches Blancas;Fiodor Dostoyevski;4;7;6;1
+8;Diario de Ana Frank;Ana Frank;3;8;8;0
+10;Los tres cerditos;anonimo;5;5;5;0

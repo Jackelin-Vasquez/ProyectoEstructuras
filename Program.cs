@@ -146,10 +146,12 @@ class Program
             var libros = arbol.ObtenerTodosLosLibros();
             using (StreamWriter sw = new StreamWriter(archivoDatos))
             {
+                // Escribimos la fila de encabezados/campos al inicio del CSV
+                sw.WriteLine("Codigo;Titulo;Autor;Categoria;TotalCopias;CopiasDisponibles;VecesPrestado");
                 foreach (var l in libros)
                 {
                     // se guradan 7 campos: Código, Título, Autor, Categoría, TotalCopias, CopiasDisponibles, VecesPrestado
-                    sw.WriteLine($"{l.Codigo},{l.Titulo},{l.Autor},{(int)l.Categoria},{l.TotalCopias},{l.CopiasDisponibles},{l.VecesPrestado}");
+                    sw.WriteLine($"{l.Codigo};{l.Titulo};{l.Autor};{(int)l.Categoria};{l.TotalCopias};{l.CopiasDisponibles};{l.VecesPrestado}");
                 }
             }
         }
@@ -173,40 +175,37 @@ class Program
             foreach (var linea in lineas)
             {
                 if (string.IsNullOrWhiteSpace(linea)) continue;
-                string[] partes = linea.Split(',');
+                string[] partes = linea.Split(';');
                 
-                // Se esperan 7 partes 
-                if (partes.Length == 7)
+                // se inteta el primer campo como entero. Si falla (lee la palabra del campo), se ignora.
+                if (partes.Length >= 6 && int.TryParse(partes[0], out int codigo))
                 {
-                    int codigo = int.Parse(partes[0]);
                     string titulo = partes[1];
                     string autor = partes[2];
                     Libro.CategoriaLibro categoria = (Libro.CategoriaLibro)int.Parse(partes[3]);
-                    int totalCopias = int.Parse(partes[4]);
-                    int copiasDisponibles = int.Parse(partes[5]);
-                    int vecesPrestado = int.Parse(partes[6]);
+                    
+                    // Se esperan 7 partes 
+                    if (partes.Length == 7)
+                    {
+                        int totalCopias = int.Parse(partes[4]);
+                        int copiasDisponibles = int.Parse(partes[5]);
+                        int vecesPrestado = int.Parse(partes[6]);
 
-                    Libro libro = new Libro(codigo, titulo, autor, categoria, totalCopias, copiasDisponibles, vecesPrestado);
+                        Libro libro = new Libro(codigo, titulo, autor, categoria, totalCopias, copiasDisponibles, vecesPrestado);
+                        arbol.Insertar(libro);
+                        minH.Insertar(libro);
+                        maxH.Insertar(libro);
+                    }
+                    else if (partes.Length == 6)
+                    {
+                        int copias = int.Parse(partes[4]);
+                        int vecesPrestado = int.Parse(partes[5]);
 
-                    arbol.Insertar(libro);
-                    minH.Insertar(libro);
-                    maxH.Insertar(libro);
-                }
-                // Compatibilidad por si tenías registros viejos de 6 columnas en tu CSV antiguo
-                else if (partes.Length == 6)
-                {
-                    int codigo = int.Parse(partes[0]);
-                    string titulo = partes[1];
-                    string autor = partes[2];
-                    Libro.CategoriaLibro categoria = (Libro.CategoriaLibro)int.Parse(partes[3]);
-                    int copias = int.Parse(partes[4]);
-                    int vecesPrestado = int.Parse(partes[5]);
-
-                    Libro libro = new Libro(codigo, titulo, autor, categoria, copias, vecesPrestado);
-
-                    arbol.Insertar(libro);
-                    minH.Insertar(libro);
-                    maxH.Insertar(libro);
+                        Libro libro = new Libro(codigo, titulo, autor, categoria, copias, vecesPrestado);
+                        arbol.Insertar(libro);
+                        minH.Insertar(libro);
+                        maxH.Insertar(libro);
+                    }
                 }
             }
         }
