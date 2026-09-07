@@ -11,7 +11,7 @@ public class ArbolBPlus
     {
         this.orden = orden;
         this.maxClaves = orden - 1;
-        this.raiz = new NodoBPlus(true);
+        this.raiz = new NodoBPlus(true, orden);
     }
 
     public Libro Buscar(int clave)
@@ -23,14 +23,16 @@ public class ArbolBPlus
     {
         if (nodo.Hoja)
         {
-            int index = nodo.Claves.IndexOf(clave);
-            if (index != -1)
-                return nodo.Valores[index];
+            for (int i = 0; i < nodo.Count; i++)
+            {
+                if (nodo.Claves[i] == clave)
+                    return nodo.Valores[i];
+            }
             return null;
         }
 
         int posicion = 0;
-        while (posicion < nodo.Claves.Count && clave >= nodo.Claves[posicion])
+        while (posicion < nodo.Count && clave >= nodo.Claves[posicion])
         {
             posicion++;
         }
@@ -50,7 +52,7 @@ public class ArbolBPlus
 
         while (actual != null)
         {
-            for (int i = 0; i < actual.Valores.Count; i++)
+            for (int i = 0; i < actual.Count; i++)
             {
                 listaLibros.Add(actual.Valores[i]);
             }
@@ -71,7 +73,7 @@ public class ArbolBPlus
         if (nodo.Hoja)
         {
             var infoLibros = new List<string>();
-            for (int i = 0; i < nodo.Claves.Count; i++)
+            for (int i = 0; i < nodo.Count; i++)
             {
                 infoLibros.Add($"[{nodo.Claves[i]}: {nodo.Valores[i].Titulo}]");
             }
@@ -79,10 +81,19 @@ public class ArbolBPlus
         }
         else
         {
-            Console.WriteLine($"{espacios}Nodo Interno -> [{string.Join(", ", nodo.Claves)}]");
-            foreach (var hijo in nodo.Hijos)
+            var clavesInternas = new List<string>();
+            for (int i = 0; i < nodo.Count; i++)
             {
-                Mostrarrecorrido(hijo, nivel + 1);
+                clavesInternas.Add(nodo.Claves[i].ToString());
+            }
+            Console.WriteLine($"{espacios}Nodo Interno -> [{string.Join(", ", clavesInternas)}]");
+            
+            for (int i = 0; i <= nodo.Count; i++)
+            {
+                if (nodo.Hijos[i] != null)
+                {
+                    Mostrarrecorrido(nodo.Hijos[i], nivel + 1);
+                }
             }
         }
     }
@@ -101,10 +112,11 @@ public class ArbolBPlus
             var claveGuia = resultado.Value.ClaveGuia;
             var nodoDerecho = resultado.Value.NodoDerecho;
 
-            var nuevaRaiz = new NodoBPlus(false);
-            nuevaRaiz.Claves.Add(claveGuia);
-            nuevaRaiz.Hijos.Add(raiz);
-            nuevaRaiz.Hijos.Add(nodoDerecho);
+            var nuevaRaiz = new NodoBPlus(false, orden);
+            nuevaRaiz.Claves[0] = claveGuia;
+            nuevaRaiz.Hijos[0] = raiz;
+            nuevaRaiz.Hijos[1] = nodoDerecho;
+            nuevaRaiz.Count = 1;
             raiz = nuevaRaiz;
         }
     }
@@ -114,22 +126,29 @@ public class ArbolBPlus
         if (nodo.Hoja)
         {
             int i = 0;
-            while (i < nodo.Claves.Count && nodo.Claves[i] < libro.Codigo)
+            while (i < nodo.Count && nodo.Claves[i] < libro.Codigo)
             {
                 i++;
             }
 
-            nodo.Claves.Insert(i, libro.Codigo);
-            nodo.Valores.Insert(i, libro);
+            for (int j = nodo.Count; j > i; j--)
+            {
+                nodo.Claves[j] = nodo.Claves[j - 1];
+                nodo.Valores[j] = nodo.Valores[j - 1];
+            }
 
-            if (nodo.Claves.Count <= maxClaves)
+            nodo.Claves[i] = libro.Codigo;
+            nodo.Valores[i] = libro;
+            nodo.Count++;
+
+            if (nodo.Count <= maxClaves)
                 return null;
 
             return DividirHoja(nodo);
         }
 
         int posicion = 0;
-        while (posicion < nodo.Claves.Count && libro.Codigo >= nodo.Claves[posicion])
+        while (posicion < nodo.Count && libro.Codigo >= nodo.Claves[posicion])
         {
             posicion++;
         }
@@ -141,10 +160,26 @@ public class ArbolBPlus
         var claveGuia = resultado.Value.ClaveGuia;
         var nodoDerecho = resultado.Value.NodoDerecho;
 
-        nodo.Claves.Insert(posicion, claveGuia);
-        nodo.Hijos.Insert(posicion + 1, nodoDerecho);
+        int k = 0;
+        while (k < nodo.Count && nodo.Claves[k] < claveGuia)
+        {
+            k++;
+        }
 
-        if (nodo.Claves.Count <= maxClaves)
+        for (int j = nodo.Count; j > k; j--)
+        {
+            nodo.Claves[j] = nodo.Claves[j - 1];
+        }
+        for (int j = nodo.Count + 1; j > k + 1; j--)
+        {
+            nodo.Hijos[j] = nodo.Hijos[j - 1];
+        }
+
+        nodo.Claves[k] = claveGuia;
+        nodo.Hijos[k + 1] = nodoDerecho;
+        nodo.Count++;
+
+        if (nodo.Count <= maxClaves)
             return null;
 
         return DividirInterno(nodo);
@@ -152,14 +187,20 @@ public class ArbolBPlus
 
     private (int ClaveGuia, NodoBPlus NodoDerecho) DividirHoja(NodoBPlus hoja)
     {
-        int punto = hoja.Claves.Count / 2;
-        var nuevaHoja = new NodoBPlus(true);
+        int punto = hoja.Count / 2;
+        var nuevaHoja = new NodoBPlus(true, orden);
 
-        nuevaHoja.Claves.AddRange(hoja.Claves.GetRange(punto, hoja.Claves.Count - punto));
-        nuevaHoja.Valores.AddRange(hoja.Valores.GetRange(punto, hoja.Valores.Count - punto));
+        int elementosANuevo = hoja.Count - punto;
+        for (int i = 0; i < elementosANuevo; i++)
+        {
+            nuevaHoja.Claves[i] = hoja.Claves[punto + i];
+            nuevaHoja.Valores[i] = hoja.Valores[punto + i];
+            hoja.Claves[punto + i] = 0;
+            hoja.Valores[punto + i] = null;
+        }
 
-        hoja.Claves.RemoveRange(punto, hoja.Claves.Count - punto);
-        hoja.Valores.RemoveRange(punto, hoja.Valores.Count - punto);
+        nuevaHoja.Count = elementosANuevo;
+        hoja.Count = punto;
 
         nuevaHoja.Siguiente = hoja.Siguiente;
         hoja.Siguiente = nuevaHoja;
@@ -170,16 +211,27 @@ public class ArbolBPlus
 
     private (int ClaveGuia, NodoBPlus NodoDerecho) DividirInterno(NodoBPlus nodo)
     {
-        int centro = nodo.Claves.Count / 2;
+        int centro = nodo.Count / 2;
         int claveQueSube = nodo.Claves[centro];
+        nodo.Claves[centro] = 0;
 
-        var nuevoNodo = new NodoBPlus(false);
+        var nuevoNodo = new NodoBPlus(false, orden);
 
-        nuevoNodo.Claves.AddRange(nodo.Claves.GetRange(centro + 1, nodo.Claves.Count - (centro + 1)));
-        nuevoNodo.Hijos.AddRange(nodo.Hijos.GetRange(centro + 1, nodo.Hijos.Count - (centro + 1)));
+        int elementosANuevo = nodo.Count - (centro + 1);
+        for (int i = 0; i < elementosANuevo; i++)
+        {
+            nuevoNodo.Claves[i] = nodo.Claves[centro + 1 + i];
+            nodo.Claves[centro + 1 + i] = 0;
+        }
 
-        nodo.Claves.RemoveRange(centro, nodo.Claves.Count - centro);
-        nodo.Hijos.RemoveRange(centro + 1, nodo.Hijos.Count - (centro + 1));
+        for (int i = 0; i <= elementosANuevo; i++)
+        {
+            nuevoNodo.Hijos[i] = nodo.Hijos[centro + 1 + i];
+            nodo.Hijos[centro + 1 + i] = null;
+        }
+
+        nuevoNodo.Count = elementosANuevo;
+        nodo.Count = centro;
 
         return (claveQueSube, nuevoNodo);
     }

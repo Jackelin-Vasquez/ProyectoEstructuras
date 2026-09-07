@@ -1,3 +1,5 @@
+using System;
+
 public class MaxHeap
 {
     private Libro[] heap;
@@ -30,7 +32,6 @@ public class MaxHeap
 
     private void AmpliarCapacidad()
     {
-        // Redimensionamiento manual
         Libro[] nuevoHeap = new Libro[heap.Length * 2];
         for (int i = 0; i < count; i++)
         {
@@ -101,6 +102,12 @@ public class MaxHeap
 
     public void Mostrar()
     {
+        if (count == 0)
+        {
+            Console.WriteLine("No hay registros en el Max Heap.");
+            return;
+        }
+
         for (int i = 0; i < count; i++)
         {
             Console.WriteLine(heap[i].ToString());

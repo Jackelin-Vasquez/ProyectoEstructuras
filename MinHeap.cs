@@ -1,3 +1,5 @@
+using System;
+
 public class MinHeap
 {
     private Libro[] heap;
@@ -30,7 +32,6 @@ public class MinHeap
 
     private void AmpliarCapacidad()
     {
-        // Redimensionamiento (Duplicar el tamaño del arreglo)
         Libro[] nuevoHeap = new Libro[heap.Length * 2];
         for (int i = 0; i < count; i++)
         {
@@ -101,6 +102,12 @@ public class MinHeap
 
     public void Mostrar()
     {
+        if (count == 0)
+        {
+            Console.WriteLine("No hay registros en el Min Heap.");
+            return;
+        }
+
         for (int i = 0; i < count; i++)
         {
             Console.WriteLine(heap[i].ToString());
