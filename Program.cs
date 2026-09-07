@@ -27,7 +27,7 @@ class Program
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
             Console.WriteLine("║                    SISTEMA DE BIBLIOTECA                 ║");
-            Console.WriteLine("║            Gestión con Árbol B+ y Heaps (Min/Max)        ║");
+            Console.WriteLine("║                      Gestión de libros                   ║");
             Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
             Console.ResetColor();
 
@@ -38,13 +38,13 @@ class Program
             Console.WriteLine("  ────────────────────────────────────────────────────────");
             
             Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [1] "); Console.ResetColor(); Console.WriteLine("Registrar nuevo libro");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [2] "); Console.ResetColor(); Console.WriteLine("Buscar libro por código (Árbol B+)");
+            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [2] "); Console.ResetColor(); Console.WriteLine("Buscar libro por código");
             Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [3] "); Console.ResetColor(); Console.WriteLine("Mostrar estructura del Árbol B+");
             Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [4] "); Console.ResetColor(); Console.WriteLine("Listar catálogo ordenado por título");
             Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [5] "); Console.ResetColor(); Console.WriteLine("Registrar préstamo de libro");
             Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [6] "); Console.ResetColor(); Console.WriteLine("Registrar devolución de libro");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [7] "); Console.ResetColor(); Console.WriteLine("Mostrar libros menos prestados (Min Heap)");
-            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [8] "); Console.ResetColor(); Console.WriteLine("Mostrar libros más prestados (Max Heap)");
+            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [7] "); Console.ResetColor(); Console.WriteLine("Mostrar libros menos prestados");
+            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [8] "); Console.ResetColor(); Console.WriteLine("Mostrar libros más prestados");
             Console.ForegroundColor = ConsoleColor.Red;   Console.Write("  [9] "); Console.ResetColor(); Console.WriteLine("Salir del sistema");
             
             Console.WriteLine("  ────────────────────────────────────────────────────────");
@@ -86,11 +86,11 @@ class Program
                         GuardarEnArchivo(arbolBPlus);
                         break;
                     case 7:
-                        MostrarTituloSeccion("LIBROS MENOS PRESTADOS (MIN HEAP)");
+                        MostrarTituloSeccion("LIBROS MENOS PRESTADOS");
                         minHeap.Mostrar();
                         break;
                     case 8:
-                        MostrarTituloSeccion("LIBROS MÁS PRESTADOS (MAX HEAP)");
+                        MostrarTituloSeccion("LIBROS MÁS PRESTADOS");
                         maxHeap.Mostrar();
                         break;
                     case 9:
@@ -155,10 +155,9 @@ class Program
 
     static void CargarDesdeArchivo(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
+        // Si el archivo no existe, inicia vacio
         if (!File.Exists(archivoDatos))
         {
-            CargarDatosIniciales(arbol, minH, maxH);
-            GuardarEnArchivo(arbol);
             return;
         }
 
@@ -170,7 +169,7 @@ class Program
                 if (string.IsNullOrWhiteSpace(linea)) continue;
                 string[] partes = linea.Split(',');
                 
-                // se espran 7 partes 
+                // Se esperan 7 partes 
                 if (partes.Length == 7)
                 {
                     int codigo = int.Parse(partes[0]);
@@ -268,14 +267,14 @@ class Program
                     libro.VecesPrestado++;
                     ReconstruirHeaps(arbol, minH, maxH);
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"\n✔ ¡Préstamo registrado con éxito para '{libro.Titulo}'!");
+                    Console.WriteLine($"\n¡Préstamo registrado con éxito para '{libro.Titulo}'!");
                     Console.ResetColor();
                     Console.WriteLine($"Copias disponibles restantes: {libro.CopiasDisponibles}");
                 }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\n✖ Lo sentimos, no hay copias disponibles de este libro.");
+                    Console.WriteLine("\n x Lo sentimos, no hay copias disponibles de este libro :(.");
                     Console.ResetColor();
                 }
             }
@@ -286,7 +285,7 @@ class Program
         }
         else
         {
-            Console.WriteLine("Código inválido.");
+            Console.WriteLine("Código inválido :(.");
         }
     }
 
@@ -295,7 +294,7 @@ class Program
     var libros = arbol.ObtenerTodosLosLibros();
     if (libros.Count == 0)
     {
-        Console.WriteLine("No hay libros registrados en el sistema.");
+        Console.WriteLine("No hay libros registrados en el sistema °^°.");
         return;
     }
 
@@ -325,7 +324,7 @@ class Program
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\n x Error: Ya se encuentran todas las copias en la biblioteca. No se puede recibir una devolución.");
+                Console.WriteLine("\n x Error: Ya se encuentran todas las copias en la biblioteca. No se puede recibir una devolución °^°.");
                 Console.ResetColor();
             }
         }
@@ -339,17 +338,6 @@ class Program
         Console.WriteLine("Código inválido.");
     }
 }
-
-    static void CargarDatosIniciales(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
-    {
-        Libro l1 = new Libro(10, "C# Avanzado", "Autor A", Libro.CategoriaLibro.Tecnologia, 5, 12);
-        Libro l2 = new Libro(5, "Estructuras de Datos", "Autor B", Libro.CategoriaLibro.Tecnologia, 3, 45);
-        Libro l3 = new Libro(20, "Algoritmos", "Autor C", Libro.CategoriaLibro.Ciencia, 2, 3);
-
-        arbol.Insertar(l1); arbol.Insertar(l2); arbol.Insertar(l3);
-        minH.Insertar(l1); minH.Insertar(l2); minH.Insertar(l3);
-        maxH.Insertar(l1); maxH.Insertar(l2); maxH.Insertar(l3);
-    }
 
     static void RegistrarLibro(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
