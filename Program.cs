@@ -45,7 +45,8 @@ class Program
             Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [6] "); Console.ResetColor(); Console.WriteLine("Registrar devolución de libro");
             Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [7] "); Console.ResetColor(); Console.WriteLine("Mostrar libros menos prestados");
             Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [8] "); Console.ResetColor(); Console.WriteLine("Mostrar libros más prestados");
-            Console.ForegroundColor = ConsoleColor.Red;   Console.Write("  [9] "); Console.ResetColor(); Console.WriteLine("Salir del sistema");
+            Console.ForegroundColor = ConsoleColor.Green; Console.Write("  [9] "); Console.ResetColor(); Console.WriteLine("Eliminar libro del sistema");
+            Console.ForegroundColor = ConsoleColor.Red;   Console.Write("  [10] "); Console.ResetColor(); Console.WriteLine("Salir del sistema");
             
             Console.WriteLine("  ────────────────────────────────────────────────────────");
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -94,6 +95,11 @@ class Program
                         maxHeap.Mostrar();
                         break;
                     case 9:
+                        MostrarTituloSeccion("ELIMINAR LIBRO");
+                        EliminarLibroMenu(arbolBPlus, minHeap, maxHeap);
+                        GuardarEnArchivo(arbolBPlus);
+                        break;
+                    case 10:
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine("\n Guardando datos y cerrando sistema... ¡Hasta luego!");
                         Console.ResetColor();
@@ -113,7 +119,7 @@ class Program
                 Console.ResetColor();
             }
 
-            if (opcion != 9)
+            if (opcion != 10)
             {
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -122,7 +128,7 @@ class Program
                 Console.ReadKey();
             }
 
-        } while (opcion != 9);
+        } while (opcion != 10);
     }
 
     static void MostrarTituloSeccion(string titulo)
@@ -229,7 +235,7 @@ class Program
 
         if (librosOrdenados.Count == 0)
         {
-            Console.WriteLine("No hay libros registrados en el sistema.");
+            Console.WriteLine("No hay libros registrados en el sistema D:.");
             return;
         }
 
@@ -330,7 +336,7 @@ class Program
         }
         else
         {
-            Console.WriteLine("\nEl libro con ese código no existe en el sistema.");
+            Console.WriteLine("\nEl libro con ese código no existe en el sistema -°-");
         }
     }
     else
@@ -348,7 +354,7 @@ class Program
 
             if (arbol.Buscar(codigo) != null)
             {
-                Console.WriteLine($"\nEl código {codigo} ya está registrado en el sistema.");
+                Console.WriteLine($"\nEl código {codigo} ya está registrado en el sistema °^°.");
                 return;
             }
 
@@ -380,7 +386,7 @@ class Program
                 maxH.Insertar(nuevoLibro);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\n✔ ¡Libro registrado con éxito!");
+                Console.WriteLine("\n¡Libro registrado con éxito! :D");
                 Console.ResetColor();
             }
             else
@@ -415,7 +421,45 @@ class Program
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"\n✖ El libro con código {codigo} no existe.");
+                Console.WriteLine($"\nEl libro con código {codigo} no existe :(.");
+                Console.ResetColor();
+            }
+        }
+        else
+        {
+            Console.WriteLine("Código inválido.");
+        }
+    }
+
+static void EliminarLibroMenu(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
+    {
+        var libros = arbol.ObtenerTodosLosLibros();
+        if (libros.Count == 0)
+        {
+            Console.WriteLine("No hay libros registrados en el sistema :(.");
+            return;
+        }
+
+        Console.WriteLine("Catálogo actual:");
+        foreach (var l in libros)
+        {
+            Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} - {l.Autor}");
+        }
+        Console.WriteLine();
+
+        Console.Write("Ingrese el código del libro que desea eliminar: ");
+        if (int.TryParse(Console.ReadLine(), out int codigo))
+        {
+            Libro libro = arbol.Buscar(codigo);
+            if (libro != null)
+            {
+                arbol.Eliminar(codigo);
+                ReconstruirHeaps(arbol, minH, maxH);
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"\nEl libro con código {codigo} no existe en el sistema D:.");
                 Console.ResetColor();
             }
         }

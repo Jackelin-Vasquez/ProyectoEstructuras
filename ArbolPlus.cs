@@ -235,4 +235,153 @@ public class ArbolBPlus
 
         return (claveQueSube, nuevoNodo);
     }
+
+    private int minClaves => (orden - 1) / 2;
+
+    public void Eliminar(int clave)
+    {
+        if (Buscar(clave) == null)
+        {
+            Console.WriteLine($"El código {clave} no existe en el sistema.");
+            return;
+        }
+
+        EliminarRec(raiz, clave);
+
+        // Si la raíz no es hoja y se quedó sin claves, su único hijo pasa a ser la nueva raíz
+        if (!raiz.Hoja && raiz.Count == 0 && raiz.Hijos[0] != null)
+        {
+            raiz = raiz.Hijos[0];
+        }
+        
+        Console.WriteLine($"Libro con código {clave} eliminado correctamente del Árbol.");
+    }
+
+    private void EliminarRec(NodoBPlus nodo, int clave)
+    {
+        if (nodo.Hoja)
+        {
+            int idx = -1;
+            for (int i = 0; i < nodo.Count; i++)
+            {
+                if (nodo.Claves[i] == clave)
+                {
+                    idx = i;
+                    break;
+                }
+            }
+
+            if (idx != -1)
+            {
+                for (int i = idx; i < nodo.Count - 1; i++)
+                {
+                    nodo.Claves[i] = nodo.Claves[i + 1];
+                    nodo.Valores[i] = nodo.Valores[i + 1];
+                }
+                nodo.Claves[nodo.Count - 1] = 0;
+                nodo.Valores[nodo.Count - 1] = null;
+                nodo.Count--;
+            }
+            return;
+        }
+
+        int posicion = 0;
+        while (posicion < nodo.Count && clave >= nodo.Claves[posicion])
+        {
+            posicion++;
+        }
+
+        NodoBPlus hijo = nodo.Hijos[posicion];
+        EliminarRec(hijo, clave);
+
+        // Verificar subdesbordamiento (underflow) en el hijo
+        if (hijo.Count < minClaves)
+        {
+            ManejarUnderflow(nodo, posicion);
+        }
+    }
+
+    private void ManejarUnderflow(NodoBPlus padre, int hijoIdx)
+    {
+        NodoBPlus hijo = padre.Hijos[hijoIdx];
+        NodoBPlus hermanoIzquierda = (hijoIdx > 0) ? padre.Hijos[hijoIdx - 1] : null;
+        NodoBPlus hermanoDerecha = (hijoIdx < padre.Count) ? padre.Hijos[hijoIdx + 1] : null;
+
+        if (hijo.Hoja)
+        {
+            // Intentar tomar prestado del hermano izquierdo
+            if (hermanoIzquierda != null && hermanoIzquierda.Count > minClaves)
+            {
+                for (int i = hijo.Count; i > 0; i--)
+                {
+                    hijo.Claves[i] = hijo.Claves[i - 1];
+                    hijo.Valores[i] = hijo.Valores[i - 1];
+                }
+                hijo.Claves[0] = hermanoIzquierda.Claves[hermanoIzquierda.Count - 1];
+                hijo.Valores[0] = hermanoIzquierda.Valores[hermanoIzquierda.Count - 1];
+                hermanoIzquierda.Claves[hermanoIzquierda.Count - 1] = 0;
+                hermanoIzquierda.Valores[hermanoIzquierda.Count - 1] = null;
+                hermanoIzquierda.Count--;
+                hijo.Count++;
+                padre.Claves[hijoIdx - 1] = hijo.Claves[0];
+            }
+            // Intentar tomar prestado del hermano derecho
+            else if (hermanoDerecha != null && hermanoDerecha.Count > minClaves)
+            {
+                hijo.Claves[hijo.Count] = hermanoDerecha.Claves[0];
+                hijo.Valores[hijo.Count] = hermanoDerecha.Valores[0];
+                hijo.Count++;
+
+                for (int i = 0; i < hermanoDerecha.Count - 1; i++)
+                {
+                    hermanoDerecha.Claves[i] = hermanoDerecha.Claves[i + 1];
+                    hermanoDerecha.Valores[i] = hermanoDerecha.Valores[i + 1];
+                }
+                hermanoDerecha.Claves[hermanoDerecha.Count - 1] = 0;
+                hermanoDerecha.Valores[hermanoDerecha.Count - 1] = null;
+                hermanoDerecha.Count--;
+                padre.Claves[hijoIdx] = hermanoDerecha.Claves[0];
+            }
+            // Fusionar con hermano izquierdo o derecho
+            else if (hermanoIzquierda != null)
+            {
+                for (int i = 0; i < hijo.Count; i++)
+                {
+                    hermanoIzquierda.Claves[hermanoIzquierda.Count + i] = hijo.Claves[i];
+                    hermanoIzquierda.Valores[hermanoIzquierda.Count + i] = hijo.Valores[i];
+                }
+                hermanoIzquierda.Count += hijo.Count;
+                hermanoIzquierda.Siguiente = hijo.Siguiente;
+
+                // Remover clave del padre
+                for (int i = hijoIdx - 1; i < padre.Count - 1; i++)
+                {
+                    padre.Claves[i] = padre.Claves[i + 1];
+                    padre.Hijos[i + 1] = padre.Hijos[i + 2];
+                }
+                padre.Claves[padre.Count - 1] = 0;
+                padre.Hijos[padre.Count] = null;
+                padre.Count--;
+            }
+            else if (hermanoDerecha != null)
+            {
+                for (int i = 0; i < hermanoDerecha.Count; i++)
+                {
+                    hijo.Claves[hijo.Count + i] = hermanoDerecha.Claves[i];
+                    hijo.Valores[hijo.Count + i] = hermanoDerecha.Valores[i];
+                }
+                hijo.Count += hermanoDerecha.Count;
+                hijo.Siguiente = hermanoDerecha.Siguiente;
+
+                for (int i = hijoIdx; i < padre.Count - 1; i++)
+                {
+                    padre.Claves[i] = padre.Claves[i + 1];
+                    padre.Hijos[i + 1] = padre.Hijos[i + 2];
+                }
+                padre.Claves[padre.Count - 1] = 0;
+                padre.Hijos[padre.Count] = null;
+                padre.Count--;
+            }
+        }
+    }
 }
