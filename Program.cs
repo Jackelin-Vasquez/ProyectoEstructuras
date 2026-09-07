@@ -142,7 +142,8 @@ class Program
             {
                 foreach (var l in libros)
                 {
-                    sw.WriteLine($"{l.Codigo},{l.Titulo},{l.Autor},{(int)l.Categoria},{l.CopiasDisponibles},{l.VecesPrestado}");
+                    // se guradan 7 campos: Código, Título, Autor, Categoría, TotalCopias, CopiasDisponibles, VecesPrestado
+                    sw.WriteLine($"{l.Codigo},{l.Titulo},{l.Autor},{(int)l.Categoria},{l.TotalCopias},{l.CopiasDisponibles},{l.VecesPrestado}");
                 }
             }
         }
@@ -168,7 +169,26 @@ class Program
             {
                 if (string.IsNullOrWhiteSpace(linea)) continue;
                 string[] partes = linea.Split(',');
-                if (partes.Length == 6)
+                
+                // se espran 7 partes 
+                if (partes.Length == 7)
+                {
+                    int codigo = int.Parse(partes[0]);
+                    string titulo = partes[1];
+                    string autor = partes[2];
+                    Libro.CategoriaLibro categoria = (Libro.CategoriaLibro)int.Parse(partes[3]);
+                    int totalCopias = int.Parse(partes[4]);
+                    int copiasDisponibles = int.Parse(partes[5]);
+                    int vecesPrestado = int.Parse(partes[6]);
+
+                    Libro libro = new Libro(codigo, titulo, autor, categoria, totalCopias, copiasDisponibles, vecesPrestado);
+
+                    arbol.Insertar(libro);
+                    minH.Insertar(libro);
+                    maxH.Insertar(libro);
+                }
+                // Compatibilidad por si tenías registros viejos de 6 columnas en tu CSV antiguo
+                else if (partes.Length == 6)
                 {
                     int codigo = int.Parse(partes[0]);
                     string titulo = partes[1];
@@ -190,7 +210,6 @@ class Program
             Console.WriteLine($"Error al leer el archivo: {ex.Message}");
         }
     }
-
     static void ReconstruirHeaps(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
         minH.Limpiar();
@@ -272,44 +291,54 @@ class Program
     }
 
     static void RegistrarDevolucion(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
+{
+    var libros = arbol.ObtenerTodosLosLibros();
+    if (libros.Count == 0)
     {
-        var libros = arbol.ObtenerTodosLosLibros();
-        if (libros.Count == 0)
-        {
-            Console.WriteLine("No hay libros registrados en el sistema.");
-            return;
-        }
+        Console.WriteLine("No hay libros registrados en el sistema.");
+        return;
+    }
 
-        Console.WriteLine("Catálogo actual:");
-        foreach (var l in libros)
-        {
-            Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} (Disponibles: {l.CopiasDisponibles})");
-        }
-        Console.WriteLine();
+    Console.WriteLine("Catálogo actual:");
+    foreach (var l in libros)
+    {
+        Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} (Disponibles: {l.CopiasDisponibles}/{l.TotalCopias})");
+    }
+    Console.WriteLine();
 
-        Console.Write("Ingrese el código del libro a devolver: ");
-        if (int.TryParse(Console.ReadLine(), out int codigo))
+    Console.Write("Ingrese el código del libro a devolver: ");
+    if (int.TryParse(Console.ReadLine(), out int codigo))
+    {
+        Libro libro = arbol.Buscar(codigo);
+        if (libro != null)
         {
-            Libro libro = arbol.Buscar(codigo);
-            if (libro != null)
+            // Validación: No se puede devolver más de lo que la biblioteca posee originalmente
+            if (libro.CopiasDisponibles < libro.TotalCopias)
             {
                 libro.CopiasDisponibles++;
                 ReconstruirHeaps(arbol, minH, maxH);
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"\n✔ ¡Devolución registrada con éxito para '{libro.Titulo}'!");
+                Console.WriteLine($"\n¡Devolución registrada con éxito para '{libro.Titulo}'!");
                 Console.ResetColor();
-                Console.WriteLine($"Copias disponibles actuales: {libro.CopiasDisponibles}");
+                Console.WriteLine($"Copias disponibles actuales: {libro.CopiasDisponibles}/{libro.TotalCopias}");
             }
             else
             {
-                Console.WriteLine("\nEl libro con ese código no existe en el sistema.");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n x Error: Ya se encuentran todas las copias en la biblioteca. No se puede recibir una devolución.");
+                Console.ResetColor();
             }
         }
         else
         {
-            Console.WriteLine("Código inválido.");
+            Console.WriteLine("\nEl libro con ese código no existe en el sistema.");
         }
     }
+    else
+    {
+        Console.WriteLine("Código inválido.");
+    }
+}
 
     static void CargarDatosIniciales(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
