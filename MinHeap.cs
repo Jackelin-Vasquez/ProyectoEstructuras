@@ -1,21 +1,42 @@
-using System;
-using System.Collections.Generic;
-
 public class MinHeap
 {
-    private List<Libro> heap = new List<Libro>();
+    private Libro[] heap;
+    private int count;
 
-    public int Count => heap.Count;
+    public MinHeap(int capacidadInicial = 10)
+    {
+        heap = new Libro[capacidadInicial];
+        count = 0;
+    }
+
+    public int Count => count;
 
     public void Limpiar()
     {
-        heap.Clear();
+        heap = new Libro[10];
+        count = 0;
     }
 
     public void Insertar(Libro valor)
     {
-        heap.Add(valor);
-        HeapifyUp(heap.Count - 1);
+        if (count >= heap.Length)
+        {
+            AmpliarCapacidad();
+        }
+        heap[count] = valor;
+        HeapifyUp(count);
+        count++;
+    }
+
+    private void AmpliarCapacidad()
+    {
+        // Redimensionamiento (Duplicar el tamaño del arreglo)
+        Libro[] nuevoHeap = new Libro[heap.Length * 2];
+        for (int i = 0; i < count; i++)
+        {
+            nuevoHeap[i] = heap[i];
+        }
+        heap = nuevoHeap;
     }
 
     private void HeapifyUp(int indice)
@@ -38,11 +59,51 @@ public class MinHeap
         }
     }
 
+    public Libro ExtraerMin()
+    {
+        if (count == 0) return null;
+
+        Libro raiz = heap[0];
+        heap[0] = heap[count - 1];
+        heap[count - 1] = null;
+        count--;
+        HeapifyDown(0);
+
+        return raiz;
+    }
+
+    private void HeapifyDown(int indice)
+    {
+        while (true)
+        {
+            int izquierdo = 2 * indice + 1;
+            int derecho = 2 * indice + 2;
+            int menor = indice;
+
+            if (izquierdo < count && heap[izquierdo].CompareTo(heap[menor]) < 0)
+                menor = izquierdo;
+            if (derecho < count && heap[derecho].CompareTo(heap[menor]) < 0)
+                menor = derecho;
+
+            if (menor != indice)
+            {
+                Libro temp = heap[indice];
+                heap[indice] = heap[menor];
+                heap[menor] = temp;
+                indice = menor;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
     public void Mostrar()
     {
-        foreach (var libro in heap)
+        for (int i = 0; i < count; i++)
         {
-            Console.WriteLine(libro.ToString());
+            Console.WriteLine(heap[i].ToString());
         }
     }
 }
