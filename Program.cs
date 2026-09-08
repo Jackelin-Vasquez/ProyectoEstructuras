@@ -38,7 +38,7 @@ class Program
 
         while (!salir)
         {
-            Console.Clear();
+            LimpiarPantalla();
             
             // Encabezado con morado (Violeta profundo)
             Console.Write("\u001b[38;2;114;9;183m");
@@ -97,7 +97,7 @@ class Program
             }
             else if (tecla.Key == ConsoleKey.Enter)
             {
-                Console.Clear();
+                LimpiarPantalla();
                 Console.CursorVisible = true; // Mostra el cursor porque las opciones piden datos por teclado
 
                 switch (opcionSeleccionada)
@@ -162,6 +162,12 @@ class Program
                 }
             }
         }
+    }
+
+    static void LimpiarPantalla()
+    {
+        Console.Write("\u001b[2J\u001b[3J\u001b[H");
+        Console.Out.Flush();
     }
 
     // recuadro dinamico
@@ -271,37 +277,77 @@ class Program
         }
     }
 
-    static void ListarPorTitulo(ArbolBPlus arbol)
+static void ListarPorTitulo(ArbolBPlus arbol)
+{
+    var libros = arbol.ObtenerTodosLosLibros();
+    var librosOrdenados = libros.OrderBy(l => l.Titulo).ToList();
+
+    if (librosOrdenados.Count == 0)
     {
-        var libros = arbol.ObtenerTodosLosLibros();
-        var librosOrdenados = libros.OrderBy(l => l.Titulo).ToList();
-
-        if (librosOrdenados.Count == 0)
-        {
-            Console.WriteLine("No hay libros registrados en el sistema D:.");
-            return;
-        }
-
-        foreach (var libro in librosOrdenados)
-        {
-            Console.WriteLine(libro.ToString());
-        }
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(" No hay libros registrados en el sistema.");
+        Console.ResetColor();
+        return;
     }
+
+    Console.Write("\u001b[38;2;157;78;221m");
+    Console.WriteLine($" Total de libros en el catálogo: {librosOrdenados.Count}\n");
+    Console.Write("\u001b[0m");
+
+    for (int i = 0; i < librosOrdenados.Count; i++)
+    {
+        var l = librosOrdenados[i];
+
+        // Numeración con el color morado 
+        Console.Write("\u001b[38;2;114;9;183m");
+        Console.Write($" [{i + 1}] ");
+        Console.Write("\u001b[0m");
+
+        // Título del libro en blanco
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write($"'{l.Titulo}'");
+        Console.ResetColor();
+
+        // Autor
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine($" — {l.Autor}");
+        Console.ResetColor();
+
+        // Detalles con sangría
+        Console.Write("      ");
+        Console.Write($"Código: {l.Codigo}  |  Categoría: {l.Categoria}  |  ");
+
+        // Color condicional para las copias (Verde si hay, Rojo si está agotado)
+        if (l.CopiasDisponibles > 0)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write($"Disponibles: {l.CopiasDisponibles}/{l.TotalCopias}");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write($"Agotado (0/{l.TotalCopias})");
+        }
+        Console.ResetColor();
+
+        Console.WriteLine($"  |  Préstamos: {l.VecesPrestado}");
+        Console.WriteLine(); // Espacioentre elementos
+    }
+}
 
     static void RegistrarPrestamo(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
         var libros = arbol.ObtenerTodosLosLibros();
         if (libros.Count == 0)
         {
-            Console.WriteLine("No hay libros registrados en el sistema -.-");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("No hay libros registrados en el sistema.");
+            Console.ResetColor();
             return;
         }
 
         Console.WriteLine("Catálogo actual:");
-        foreach (var l in libros)
-        {
-            Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} (Disponibles: {l.CopiasDisponibles})");
-        }
+        MostrarListaCompacta(libros); 
         Console.WriteLine();
 
         Console.Write("Ingrese el código del libro a prestar: ");
@@ -339,22 +385,21 @@ class Program
     }
 
     static void RegistrarDevolucion(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
-    {
-        var libros = arbol.ObtenerTodosLosLibros();
-        if (libros.Count == 0)
         {
-            Console.WriteLine("No hay libros registrados en el sistema °^°.");
-            return;
-        }
+            var libros = arbol.ObtenerTodosLosLibros();
+            if (libros.Count == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("No hay libros registrados en el sistema.");
+                Console.ResetColor();
+                return;
+            }
 
-        Console.WriteLine("Catálogo actual:");
-        foreach (var l in libros)
-        {
-            Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} (Disponibles: {l.CopiasDisponibles}/{l.TotalCopias})");
-        }
-        Console.WriteLine();
+            Console.WriteLine("Catálogo actual:");
+            MostrarListaCompacta(libros); 
+            Console.WriteLine();
 
-        Console.Write("Ingrese el código del libro a devolver: ");
+            Console.Write("Ingrese el código del libro a devolver: ");
         if (int.TryParse(Console.ReadLine(), out int codigo))
         {
             Libro libro = arbol.Buscar(codigo);
@@ -479,15 +524,14 @@ class Program
         var libros = arbol.ObtenerTodosLosLibros();
         if (libros.Count == 0)
         {
-            Console.WriteLine("No hay libros registrados en el sistema :(.");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("No hay libros registrados en el sistema.");
+            Console.ResetColor();
             return;
         }
 
         Console.WriteLine("Catálogo actual:");
-        foreach (var l in libros)
-        {
-            Console.WriteLine($"  [Código: {l.Codigo}] {l.Titulo} - {l.Autor}");
-        }
+        MostrarListaCompacta(libros); 
         Console.WriteLine();
 
         Console.Write("Ingrese el código del libro que desea eliminar: ");
@@ -512,6 +556,69 @@ class Program
         else
         {
             Console.WriteLine("Código inválido.");
+        }
+    }
+
+    // para listar libros 
+    static void MostrarListaCompacta(List<Libro> libros)
+    {
+        for (int i = 0; i < libros.Count; i++)
+        {
+            var l = libros[i];
+
+            // Borde superior de la tarjeta 
+            Console.Write("\u001b[38;2;114;9;183m");
+            Console.WriteLine("  ┌──────────────────────────────────────────────────────┐");
+
+            // Línea 1: Número de opción y Título del libro
+            Console.Write("  │ ");
+            Console.Write("\u001b[38;2;157;78;221m");
+            Console.Write($"[{i + 1}] ");
+            Console.ForegroundColor = ConsoleColor.White;
+            string tituloCortado = l.Titulo.Length > 44 ? l.Titulo.Substring(0, 41) + "..." : l.Titulo;
+            Console.Write($"{tituloCortado,-44}");
+            Console.Write("\u001b[38;2;114;9;183m");
+            Console.WriteLine("│");
+
+            // Línea 2: Autor y Categoría
+            Console.Write("  │ ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            string infoAutor = $" {l.Autor} ({l.Categoria})";
+            if (infoAutor.Length > 51) infoAutor = infoAutor.Substring(0, 48) + "...";
+            Console.Write($"{infoAutor,-52}");
+            Console.Write("\u001b[38;2;114;9;183m");
+            Console.WriteLine("│");
+
+            // Línea 3: Código, Estado de Copias y Préstamos
+            Console.Write("  │ ");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write(" Codigo: ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write($"{l.Codigo,-5}");
+
+            Console.Write(" │ ");
+            if (l.CopiasDisponibles > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write($"Disponible: {l.CopiasDisponibles}/{l.TotalCopias}   ");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Agotado (0)       ");
+            }
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write($"│ Préstamos: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write($"{l.VecesPrestado,-3}");
+            
+            Console.Write("\u001b[38;2;114;9;183m");
+            Console.WriteLine(" │");
+
+            // Borde inferior de la tarjeta
+            Console.WriteLine("  └──────────────────────────────────────────────────────┘");
+            Console.ResetColor();
         }
     }
 }
