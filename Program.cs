@@ -11,7 +11,7 @@ class Program
     {
         // Asegurar soporte de caracteres especiales/emojis y secuencias ANSI en la consola de Windows
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        Console.CursorVisible = false; // Ocultamos el cursor parpadeante para que el menú interactivo se vea limpio
+        Console.CursorVisible = false; // Oculta el cursor parpadeante para que el menú interactivo se vea limpio
 
         ArbolBPlus arbolBPlus = new ArbolBPlus();
         MinHeap minHeap = new MinHeap();
@@ -40,7 +40,7 @@ class Program
         {
             Console.Clear();
             
-            // Encabezado con morado real (Violeta profundo)
+            // Encabezado con morado (Violeta profundo)
             Console.Write("\u001b[38;2;114;9;183m");
             Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
             Console.WriteLine("║                  SISTEMA DE BIBLIOTECA                   ║");
@@ -70,7 +70,7 @@ class Program
                 }
                 else
                 {
-                    // Opciones no seleccionadas con tu color morado personalizado
+                    // Opciones no seleccionadas con  color morado 
                     Console.Write("\u001b[38;2;157;78;221m");
                     Console.WriteLine($"    {textoOpcion}");
                     Console.Write("\u001b[0m");
@@ -98,7 +98,7 @@ class Program
             else if (tecla.Key == ConsoleKey.Enter)
             {
                 Console.Clear();
-                Console.CursorVisible = true; // Mostramos el cursor porque las opciones piden datos por teclado
+                Console.CursorVisible = true; // Mostra el cursor porque las opciones piden datos por teclado
 
                 switch (opcionSeleccionada)
                 {
@@ -158,7 +158,7 @@ class Program
                     Console.Write("Presione cualquier tecla para volver al menú...");
                     Console.ResetColor();
                     Console.ReadKey(true);
-                    Console.CursorVisible = false; // Ocultamos de nuevo el cursor al regresar al menú principal
+                    Console.CursorVisible = false; // se oculta de nuevo el cursor al regresar al menú principal
                 }
             }
         }
@@ -167,7 +167,7 @@ class Program
     // recuadro dinamico
     static void MostrarTituloSeccion(string titulo)
     {
-        // Calculamos el tamaño dependiendo de qué tan largo sea el texto para que no se deforme
+        // Calcula el tamaño dependiendo de qué tan largo sea el texto para que no se deforme
         int ancho = titulo.Length + 4; // Espacio interno a los lados
         string lineaHorizontal = new string('═', ancho);
 
@@ -259,7 +259,7 @@ class Program
 
     static void ReconstruirHeaps(ArbolBPlus arbol, MinHeap minH, MaxHeap maxH)
     {
-        // se limpia y se vuelve a meter todo para que los heaps no pierdan el orden con los préstamos
+        // se limpia y se vuelve a meter todo para que los heaps no pierdan el orden con los présta
         minH.Limpiar();
         maxH.Limpiar();
 
@@ -394,7 +394,7 @@ class Program
             Console.Write("Ingrese Código (número): ");
             int codigo = int.Parse(Console.ReadLine());
 
-            // Validamos que no metamos un código repetido
+            // Valida que no se meta un código repetido
             if (arbol.Buscar(codigo) != null)
             {
                 Console.WriteLine($"\nEl código {codigo} ya está registrado en el sistema °^°.");
