@@ -50,6 +50,7 @@ public class Libro : IComparable<Libro>
     Ciencia,
     Historia,
     Literatura,
-    Ficcion
+    Ficcion,
+    Fantasia
 }
 }

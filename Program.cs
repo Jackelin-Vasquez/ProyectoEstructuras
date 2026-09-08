@@ -164,6 +164,8 @@ class Program
         }
     }
 
+    
+
     static void LimpiarPantalla()
     {
         Console.Write("\u001b[2J\u001b[3J\u001b[H");
