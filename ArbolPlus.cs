@@ -9,6 +9,7 @@ public class ArbolBPlus
 
     public ArbolBPlus(int orden = 4)
     {
+        // :D Se inicializan los parámetros principales del árbol y se crea una raíz que por defecto es hoja
         this.orden = orden;
         this.maxClaves = orden - 1;
         this.raiz = new NodoBPlus(true, orden);
@@ -16,11 +17,13 @@ public class ArbolBPlus
 
     public Libro Buscar(int clave)
     {
+        // Se delega la búsqueda a un método recursivo auxiliar :p
         return BuscarRec(raiz, clave);
     }
 
     private Libro BuscarRec(NodoBPlus nodo, int clave)
     {
+        // Si se llega a un nodo hoja, se recorren las claves para encontrar el libro coincidente
         if (nodo.Hoja)
         {
             for (int i = 0; i < nodo.Count; i++)
@@ -31,6 +34,7 @@ public class ArbolBPlus
             return null;
         }
 
+        // Si es un nodo interno, se busca la posición adecuada para descender por el hijo correspondiente :]
         int posicion = 0;
         while (posicion < nodo.Count && clave >= nodo.Claves[posicion])
         {
@@ -45,11 +49,13 @@ public class ArbolBPlus
         List<Libro> listaLibros = new List<Libro>();
         NodoBPlus actual = raiz;
 
+        // Se desciende hasta el primer nodo hoja ubicado más a la izquierda
         while (!actual.Hoja)
         {
             actual = actual.Hijos[0];
         }
 
+        // Se aprovecha el enlace encadenado entre hojas para recorrer todo el catálogo de manera secuencial
         while (actual != null)
         {
             for (int i = 0; i < actual.Count; i++)
@@ -64,6 +70,7 @@ public class ArbolBPlus
 
     public void Mostrar()
     {
+        // Se inicia el recorrido gráfico de la estructura desde la raíz en el nivel 0 
         Mostrarrecorrido(raiz, 0);
     }
 
@@ -100,6 +107,7 @@ public class ArbolBPlus
 
     public void Insertar(Libro libro)
     {
+        // Se valida que el código no existaantes para evitar duplicados en el árbol 
         if (Buscar(libro.Codigo) != null)
         {
             Console.WriteLine($"El código {libro.Codigo} ya está registrado.");
@@ -107,6 +115,7 @@ public class ArbolBPlus
         }
 
         var resultado = InsertarRec(raiz, libro);
+        // Si la inserción genera una partición en la raíz, se crea una nueva raíz que es superior
         if (resultado.HasValue)
         {
             var claveGuia = resultado.Value.ClaveGuia;
@@ -202,6 +211,7 @@ public class ArbolBPlus
         nuevaHoja.Count = elementosANuevo;
         hoja.Count = punto;
 
+        // Se actualizan los punteros de la lista enlazada de hojas
         nuevaHoja.Siguiente = hoja.Siguiente;
         hoja.Siguiente = nuevaHoja;
 
@@ -240,6 +250,7 @@ public class ArbolBPlus
 
     public void Eliminar(int clave)
     {
+        // Se valida que el elemento exista antes de seguir con la eliminación
         if (Buscar(clave) == null)
         {
             Console.WriteLine($"El código {clave} no existe en el sistema.");
@@ -248,7 +259,7 @@ public class ArbolBPlus
 
         EliminarRec(raiz, clave);
 
-        // Si la raíz no es hoja y se quedó sin claves, su único hijo pasa a ser la nueva raíz
+        // Si la raíz no es hoja y se queda sin claves, su único hijo pasa a ser la nueva raíz del árbol
         if (!raiz.Hoja && raiz.Count == 0 && raiz.Hijos[0] != null)
         {
             raiz = raiz.Hijos[0];
@@ -294,7 +305,7 @@ public class ArbolBPlus
         NodoBPlus hijo = nodo.Hijos[posicion];
         EliminarRec(hijo, clave);
 
-        // Verificar subdesbordamiento (underflow) en el hijo
+        // Se verifica si ocurre un subdesbordamiento (underflow) en el hijo tras la eliminación
         if (hijo.Count < minClaves)
         {
             ManejarUnderflow(nodo, posicion);
@@ -309,7 +320,7 @@ public class ArbolBPlus
 
         if (hijo.Hoja)
         {
-            // Intentar tomar prestado del hermano izquierdo
+            // Se intenta tomar prestado un elemento del hermano izquierdo si este tiene excedente
             if (hermanoIzquierda != null && hermanoIzquierda.Count > minClaves)
             {
                 for (int i = hijo.Count; i > 0; i--)
@@ -325,7 +336,7 @@ public class ArbolBPlus
                 hijo.Count++;
                 padre.Claves[hijoIdx - 1] = hijo.Claves[0];
             }
-            // Intentar tomar prestado del hermano derecho
+            // Se intenta tomar prestado un elemento del hermano derecho si este tiene excedente
             else if (hermanoDerecha != null && hermanoDerecha.Count > minClaves)
             {
                 hijo.Claves[hijo.Count] = hermanoDerecha.Claves[0];
@@ -342,7 +353,7 @@ public class ArbolBPlus
                 hermanoDerecha.Count--;
                 padre.Claves[hijoIdx] = hermanoDerecha.Claves[0];
             }
-            // Fusionar con hermano izquierdo o derecho
+            // Se realiza la fusión con el hermano izquierdo o derecho si no se puede redistribuir
             else if (hermanoIzquierda != null)
             {
                 for (int i = 0; i < hijo.Count; i++)
@@ -353,7 +364,7 @@ public class ArbolBPlus
                 hermanoIzquierda.Count += hijo.Count;
                 hermanoIzquierda.Siguiente = hijo.Siguiente;
 
-                // Remover clave del padre
+                // Se remueve la clave correspondiente del nodo padre
                 for (int i = hijoIdx - 1; i < padre.Count - 1; i++)
                 {
                     padre.Claves[i] = padre.Claves[i + 1];

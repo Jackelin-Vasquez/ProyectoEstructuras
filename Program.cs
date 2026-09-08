@@ -11,6 +11,7 @@ class Program
     {
         // Asegurar soporte de caracteres especiales/emojis y secuencias ANSI en la consola de Windows
         Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.CursorVisible = false; // Ocultamos el cursor parpadeante para que el menú interactivo se vea limpio
 
         ArbolBPlus arbolBPlus = new ArbolBPlus();
         MinHeap minHeap = new MinHeap();
@@ -19,16 +20,31 @@ class Program
         // Aqui se carga lo que ya se tiene guardado antes de abrir el menú
         CargarDesdeArchivo(arbolBPlus, minHeap, maxHeap);
 
-        int opcion = 0;
-        do
+        string[] opciones = {
+            "Registrar nuevo libro",
+            "Buscar libro por código",
+            "Mostrar estructura del Árbol B+",
+            "Listar catálogo ordenado por título",
+            "Registrar préstamo de libro",
+            "Registrar devolución de libro",
+            "Mostrar libros menos prestados",
+            "Mostrar libros más prestados",
+            "Eliminar libro del sistema",
+            "Salir del sistema"
+        };
+
+        int opcionSeleccionada = 0;
+        bool salir = false;
+
+        while (!salir)
         {
             Console.Clear();
             
             // Encabezado con morado real (Violeta profundo)
             Console.Write("\u001b[38;2;114;9;183m");
             Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
-            Console.WriteLine("║                    SISTEMA DE BIBLIOTECA                 ║");
-            Console.WriteLine("║                       Gestión de libros                  ║");
+            Console.WriteLine("║                  SISTEMA DE BIBLIOTECA                   ║");
+            Console.WriteLine("║                    Gestión de libros                     ║");
             Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
             Console.Write("\u001b[0m");
 
@@ -38,99 +54,114 @@ class Program
             Console.Write("\u001b[0m");
             Console.WriteLine("  ────────────────────────────────────────────────────────");
             
-            // Opciones del menú con viñetas en morado 
-            Console.Write("\u001b[38;2;157;78;221m  [1] \u001b[0m"); Console.WriteLine("Registrar nuevo libro");
-            Console.Write("\u001b[38;2;157;78;221m  [2] \u001b[0m"); Console.WriteLine("Buscar libro por código");
-            Console.Write("\u001b[38;2;157;78;221m  [3] \u001b[0m"); Console.WriteLine("Mostrar estructura del Árbol B+");
-            Console.Write("\u001b[38;2;157;78;221m  [4] \u001b[0m"); Console.WriteLine("Listar catálogo ordenado por título");
-            Console.Write("\u001b[38;2;157;78;221m  [5] \u001b[0m"); Console.WriteLine("Registrar préstamo de libro");
-            Console.Write("\u001b[38;2;157;78;221m  [6] \u001b[0m"); Console.WriteLine("Registrar devolución de libro");
-            Console.Write("\u001b[38;2;157;78;221m  [7] \u001b[0m"); Console.WriteLine("Mostrar libros menos prestados");
-            Console.Write("\u001b[38;2;157;78;221m  [8] \u001b[0m"); Console.WriteLine("Mostrar libros más prestados");
-            Console.Write("\u001b[38;2;157;78;221m  [9] \u001b[0m"); Console.WriteLine("Eliminar libro del sistema");
-            Console.Write("\u001b[38;2;114;9;183m  [10] \u001b[0m"); Console.WriteLine("Salir del sistema");
+            // Opciones del menú con navegación interactiva por flechas
+            for (int i = 0; i < opciones.Length; i++)
+            {
+                int numeroOpcion = i + 1;
+                string textoOpcion = $"[{numeroOpcion}] {opciones[i]}";
+
+                if (i == opcionSeleccionada)
+                {
+                    // Resaltar la opción seleccionada como un botón
+                    Console.BackgroundColor = ConsoleColor.DarkMagenta;
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine($"  ► {textoOpcion.PadRight(52)} ");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    // Opciones no seleccionadas con tu color morado personalizado
+                    Console.Write("\u001b[38;2;157;78;221m");
+                    Console.WriteLine($"    {textoOpcion}");
+                    Console.Write("\u001b[0m");
+                }
+            }
             
             Console.WriteLine("  ────────────────────────────────────────────────────────");
-            Console.Write("\u001b[38;2;157;78;221mSeleccione una opción: \u001b[0m");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("   Use las flechas ↑ ↓ para mover entre opciones y Enter para elegir");
+            Console.ResetColor();
 
-            string input = Console.ReadLine();
-            
-            // se usa TryParse para que no se nos caiga el programa si meten letras por error D:
-            if (int.TryParse(input, out opcion))
+            // Leer las teclas del usuario
+            ConsoleKeyInfo tecla = Console.ReadKey(true);
+
+            if (tecla.Key == ConsoleKey.UpArrow)
+            {
+                opcionSeleccionada--;
+                if (opcionSeleccionada < 0) opcionSeleccionada = opciones.Length - 1; // Vuelve al final si sube desde la primera
+            }
+            else if (tecla.Key == ConsoleKey.DownArrow)
+            {
+                opcionSeleccionada++;
+                if (opcionSeleccionada >= opciones.Length) opcionSeleccionada = 0; // Vuelve al inicio si baja desde la última
+            }
+            else if (tecla.Key == ConsoleKey.Enter)
             {
                 Console.Clear();
-                switch (opcion)
+                Console.CursorVisible = true; // Mostramos el cursor porque las opciones piden datos por teclado
+
+                switch (opcionSeleccionada)
                 {
-                    case 1:
+                    case 0:
                         MostrarTituloSeccion("REGISTRAR NUEVO LIBRO");
                         RegistrarLibro(arbolBPlus, minHeap, maxHeap);
                         GuardarEnArchivo(arbolBPlus);
                         break;
-                    case 2:
+                    case 1:
                         MostrarTituloSeccion("BÚSQUEDA DE LIBRO");
                         BuscarLibro(arbolBPlus);
                         break;
-                    case 3:
+                    case 2:
                         MostrarTituloSeccion("ESTRUCTURA DEL ÁRBOL B+");
                         arbolBPlus.Mostrar();
                         break;
-                    case 4:
+                    case 3:
                         MostrarTituloSeccion("CATÁLOGO ORDENADO POR TÍTULO");
                         ListarPorTitulo(arbolBPlus);
                         break;
-                    case 5:
+                    case 4:
                         MostrarTituloSeccion("REGISTRAR PRÉSTAMO");
                         RegistrarPrestamo(arbolBPlus, minHeap, maxHeap);
                         GuardarEnArchivo(arbolBPlus);
                         break;
-                    case 6:
+                    case 5:
                         MostrarTituloSeccion("REGISTRAR DEVOLUCIÓN");
                         RegistrarDevolucion(arbolBPlus, minHeap, maxHeap);
                         GuardarEnArchivo(arbolBPlus);
                         break;
-                    case 7:
+                    case 6:
                         MostrarTituloSeccion("LIBROS MENOS PRESTADOS");
                         minHeap.Mostrar();
                         break;
-                    case 8:
+                    case 7:
                         MostrarTituloSeccion("LIBROS MÁS PRESTADOS");
                         maxHeap.Mostrar();
                         break;
-                    case 9:
+                    case 8:
                         MostrarTituloSeccion("ELIMINAR LIBRO");
                         EliminarLibroMenu(arbolBPlus, minHeap, maxHeap);
                         GuardarEnArchivo(arbolBPlus);
                         break;
-                    case 10:
+                    case 9:
                         Console.Write("\u001b[38;2;114;9;183m");
                         Console.WriteLine("\n Guardando datos y cerrando sistema... ¡Hasta luego!");
                         Console.Write("\u001b[0m");
                         GuardarEnArchivo(arbolBPlus);
-                        break;
-                    default:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\n x Opción inválida. Intente de nuevo.");
-                        Console.ResetColor();
+                        salir = true;
                         break;
                 }
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\n x Por favor, ingrese un número válido.");
-                Console.ResetColor();
-            }
 
-            if (opcion != 10)
-            {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.Write("Presione cualquier tecla para volver al menú...");
-                Console.ResetColor();
-                Console.ReadKey();
+                if (!salir)
+                {
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("Presione cualquier tecla para volver al menú...");
+                    Console.ResetColor();
+                    Console.ReadKey(true);
+                    Console.CursorVisible = false; // Ocultamos de nuevo el cursor al regresar al menú principal
+                }
             }
-
-        } while (opcion != 10);
+        }
     }
 
     // recuadro dinamico
@@ -391,7 +422,7 @@ class Program
                 Console.Write("Ingrese Copias Disponibles: ");
                 int copias = int.Parse(Console.ReadLine());
 
-                Libro nuevoLibro = new Libro(codigo, titulo, autor, categoriaSeleccionada, copias, 0);
+                Libro nuevoLibro = new Libro(codigo, titulo, autor, categoriaSeleccionada, copias, copias, 0);
 
                 arbol.Insertar(nuevoLibro);
                 minH.Insertar(nuevoLibro);

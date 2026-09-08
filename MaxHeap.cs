@@ -7,6 +7,7 @@ public class MaxHeap
 
     public MaxHeap(int capacidadInicial = 10)
     {
+        // Se arranca el array con una capacidad por defecto (10) y el contador en 0
         heap = new Libro[capacidadInicial];
         count = 0;
     }
@@ -15,23 +16,27 @@ public class MaxHeap
 
     public void Limpiar()
     {
+        // Se borra todo reiniciando el array y el contador
         heap = new Libro[10];
         count = 0;
     }
 
     public void Insertar(Libro valor)
     {
+        // Si ya se excede el tamaño, se procede a duplicar el espacio con el método de abajo
         if (count >= heap.Length)
         {
             AmpliarCapacidad();
         }
         heap[count] = valor;
+        // Se sube el elemento si es mayor que su padre para mantener la propiedad del max heap
         HeapifyUp(count);
         count++;
     }
 
     private void AmpliarCapacidad()
     {
+        // Se crea uno nuevo con el doble de tamaño y se copian los dats anteriores
         Libro[] nuevoHeap = new Libro[heap.Length * 2];
         for (int i = 0; i < count; i++)
         {
@@ -42,6 +47,7 @@ public class MaxHeap
 
     private void HeapifyUp(int indice)
     {
+        // Se compara con e padre y si se es mayor se intercambian
         while (indice > 0)
         {
             int padre = (indice - 1) / 2;
@@ -64,7 +70,9 @@ public class MaxHeap
     {
         if (count == 0) return null;
 
+        // Se extrae la raíz (el elemento más grande)
         Libro raiz = heap[0];
+        // Se pasa el último elemento a la raíz y se acomoda hacia abajo
         heap[0] = heap[count - 1];
         heap[count - 1] = null;
         count--;
@@ -75,6 +83,7 @@ public class MaxHeap
 
     private void HeapifyDown(int indice)
     {
+        // Se va bajando el elemento por el árbol si es menor que alguno de sus hijos
         while (true)
         {
             int izquierdo = 2 * indice + 1;
@@ -108,6 +117,7 @@ public class MaxHeap
             return;
         }
 
+        // Se recorre el heap imprimiendo cada libro
         for (int i = 0; i < count; i++)
         {
             Console.WriteLine(heap[i].ToString());
